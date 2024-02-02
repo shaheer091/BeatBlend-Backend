@@ -26,11 +26,11 @@ const signup = async (req, res) => {
   }
 };
 const otpVerify = async (req, res) => {
-  const {enteredOTP, serverOTP} = req.body;
-  console.log(`enteredotp ${enteredOTP} serverotp ${serverOTP}`);
+  const {sendedotp, enteredotp} = req.body;
+  console.log(`serverotp ${sendedotp}  enteredotp ${enteredotp}`);
 
   // Check if entered OTP matches the generated OTP
-  if (String(enteredOTP) == serverOTP) {
+  if (String(sendedotp) == enteredotp) {
     console.log('otp verified successfully');
     res.status(200).json({message: 'OTP verified successfully'});
   } else {
