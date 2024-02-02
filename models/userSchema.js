@@ -1,6 +1,6 @@
 const mongoose=require('mongoose');
 const userSchema=new mongoose.Schema({
-  userName: {
+  username: {
     type: String,
     required: true,
   },
@@ -15,22 +15,27 @@ const userSchema=new mongoose.Schema({
   role: {
     type: String,
     required: true,
+    default: 'user',
   },
   isVerified: {
     type: Boolean,
     required: true,
+    default: false,
   },
   isPremium: {
     type: Boolean,
     required: true,
+    default: false,
   },
-  dataCreated: {
+  dateCreated: {
     type: String,
     required: true,
+    default: 'today',
   },
   deleteStatus: {
     type: Boolean,
     required: true,
+    default: false,
   },
 });
 
