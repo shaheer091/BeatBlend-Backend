@@ -45,7 +45,7 @@ const otpVerify = async (req, res) => {
   // Check if entered OTP matches the generated OTP
   if (String(sendedotp) !== enteredotp) {
     console.log('otp verification failed');
-    return res.status(400).json({error: 'Invalid OTP'});
+    return res.status(400).json({message: 'Invalid OTP'});
   }
   try {
     // Extract user data from the request body or any other source
@@ -83,14 +83,56 @@ const otpVerify = async (req, res) => {
     await newUser.save();
 
     console.log('otp verified successfully');
-    return res.status(200).json({message: 'OTP verified successfully'});
+    return res.status(200)
+        .json({success: true, message: 'OTP verified successfully'});
   } catch (error) {
     console.error('Error saving user:', error);
     return res.status(500).json({error: 'Internal Server error'});
   }
 };
+const login = async (req, res) => {
+  console.log('login button clicked');
+  try {
+    const {usernameOrEmail, password} = req.body;
+
+    console.log('-----------------------------------');
+    console.log(req.body);
+    console.log('-----------------------------------');
+
+    if (!usernameOrEmail || !password) {
+      console.log('Enter the fields properly');
+      return res.json({message: 'Enter the fields properly'});
+    }
+
+    const existingUser = await Users.findOne({
+      $or: [{email: usernameOrEmail}, {username: usernameOrEmail}],
+    });
+
+    console.log(existingUser);
+    console.log('======================');
+    if (!existingUser) {
+      console.log('No user exists');
+      return res.json({message: 'No user exists'});
+    }
+
+    const matchPassword = await bcrypt.compare(password, existingUser.password);
+
+    if (!matchPassword) {
+      console.log('Password did not match');
+      return res.json({message: 'Password did not match'});
+    }
+
+    console.log('Login successful');
+    return res.json({success: true, message: 'Login successful'});
+  } catch (error) {
+    console.error('Error executing findOne:', error);
+    return res.status(500).json({error: 'Internal Server Error'});
+  }
+};
+
 
 module.exports = {
   signup,
   otpVerify,
+  login,
 };

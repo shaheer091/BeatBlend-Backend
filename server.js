@@ -15,6 +15,14 @@ app.use('/user', userRoutes);
 
 const dbURI = process.env.DATABASE;
 mongoose.connect(dbURI);
+mongoose.connection.on('connected', () => {
+  console.log('Database connected');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error(`Database connection error: ${err}`);
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
