@@ -1,5 +1,6 @@
-const Users=require('../../models/userSchema');
+const Users = require('../../models/userSchema');
 const emailService = require('./emailController');
+const bcrypt = require('bcrypt');
 
 const signup = async (req, res) => {
   console.log('sudais');
@@ -9,14 +10,25 @@ const signup = async (req, res) => {
   if (!username || !email || !password || !confirmPassword) {
     res.status(400).json({message: 'Enter your details'});
   }
-  const existingUser= await Users.findOne({
-    $or: [{username}, {email}],
+  const existingUser = await Users.findOne({
+    $or: [{email}, {username}],
   });
+  console.log(existingUser);
   if (existingUser) {
-    res.status(200).json({message: 'User already exist'});
+    if (existingUser.email === email) {
+      return res
+          .status(200)
+          .json({message: 'User with this email already exists'});
+    } else if (existingUser.username === username) {
+      return res
+          .status(200)
+          .json({message: 'User with this username already exists'});
+    }
   } else {
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    console.log(otp);
     try {
+      console.log('annachiee');
       await emailService(email, otp);
       res.status(200).json({message: 'OTP is successfully sent', otp});
     } catch (error) {
@@ -25,6 +37,7 @@ const signup = async (req, res) => {
     }
   }
 };
+
 const otpVerify = async (req, res) => {
   const {sendedotp, enteredotp} = req.body;
   console.log(`serverotp ${sendedotp}  enteredotp ${enteredotp}`);
@@ -32,31 +45,31 @@ const otpVerify = async (req, res) => {
   // Check if entered OTP matches the generated OTP
   if (String(sendedotp) !== enteredotp) {
     console.log('otp verification failed');
-    res.status(400).json({error: 'Invalid OTP'});
+    return res.status(400).json({error: 'Invalid OTP'});
   }
   try {
     // Extract user data from the request body or any other source
     const {
-      username: username,
-      email: email,
-      password: password,
-      role: role,
-      isVerified: isVerified,
-      isPremium: isPremium,
-      dateCreated: dateCreated,
-      deleteStatus: deleteStatus,
+      username,
+      email,
+      password,
+      role,
+      isVerified,
+      isPremium,
+      dateCreated,
+      deleteStatus,
     } = req.body;
     console.log('-------------------------------');
-
     console.log(req.body);
-
     console.log('-------------------------------');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user instance
     const newUser = new Users({
       username,
       email,
-      password,
+      password: hashedPassword,
       role,
       isVerified,
       isPremium,

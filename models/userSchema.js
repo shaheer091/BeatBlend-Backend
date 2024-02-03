@@ -28,9 +28,9 @@ const userSchema=new mongoose.Schema({
     default: false,
   },
   dateCreated: {
-    type: String,
+    type: Date,
     required: true,
-    default: 'today',
+    default: new Date(),
   },
   deleteStatus: {
     type: Boolean,
