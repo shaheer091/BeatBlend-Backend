@@ -1,6 +1,7 @@
 const Users = require('../../models/userSchema');
 const emailService = require('./emailController');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const signup = async (req, res) => {
   console.log('sudais');
@@ -81,9 +82,19 @@ const otpVerify = async (req, res) => {
     console.log('-------------------------------');
     // Save the new user to the database
     await newUser.save();
+    const token = jwt.sign(
+        {userId: newUser._id},
+        process.env.SECRET_KEY,
+        {expiresIn: '1h'},
+    );
+
+    console.log('***********************');
+    console.log('TOKEN', token);
+    console.log('***********************');
 
     console.log('otp verified successfully');
-    return res.status(200)
+    return res
+        .status(200)
         .json({success: true, message: 'OTP verified successfully'});
   } catch (error) {
     console.error('Error saving user:', error);
@@ -129,7 +140,6 @@ const login = async (req, res) => {
     return res.status(500).json({error: 'Internal Server Error'});
   }
 };
-
 
 module.exports = {
   signup,
