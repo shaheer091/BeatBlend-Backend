@@ -95,7 +95,7 @@ const otpVerify = async (req, res) => {
     console.log('otp verified successfully');
     return res
         .status(200)
-        .json({success: true, message: 'OTP verified successfully'});
+        .json({success: true, message: 'OTP verified successfully', token});
   } catch (error) {
     console.error('Error saving user:', error);
     return res.status(500).json({error: 'Internal Server error'});
