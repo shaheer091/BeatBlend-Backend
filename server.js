@@ -11,7 +11,7 @@ const port = process.env.PORT;
 
 app.use(bodyParser.json());
 app.use(cors());
-app.use('/user', userRoutes);
+app.use('/', userRoutes);
 
 const dbURI = process.env.DATABASE;
 mongoose.connect(dbURI);
