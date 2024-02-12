@@ -1,10 +1,9 @@
-const express=require('express');
+const express = require('express');
 // eslint-disable-next-line new-cap
-const router=express.Router();
-const user=require('../controllers/userController/userController');
+const router = express.Router();
+const user = require('../controllers/userController/userController');
+const getUserId = require('../middleware/getUserId');
 
-router.post('/signup', user.signup);
-router.post('/otp-verify', user.otpVerify);
-router.post('/login', user.login);
+router.get('/profile', getUserId, user.getProfile);
 
-module.exports=router;
+module.exports = router;
