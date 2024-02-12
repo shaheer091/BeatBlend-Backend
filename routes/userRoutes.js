@@ -5,5 +5,6 @@ const user = require('../controllers/userController/userController');
 const getUserId = require('../middleware/getUserId');
 
 router.get('/profile', getUserId, user.getProfile);
+router.patch('/profile', getUserId, user.updateProfile);
 
 module.exports = router;
