@@ -6,5 +6,6 @@ const getUserId = require('../middleware/getUserId');
 
 router.get('/profile', getUserId, user.getProfile);
 router.patch('/profile', getUserId, user.updateProfile);
+router.post('/verifyPhone', getUserId, user.verifyPhone);
 
 module.exports = router;

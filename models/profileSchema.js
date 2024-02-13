@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const profileSchema = new mongoose.Schema({
   userId: {
-    type: String,
+    type: mongoose.Types.ObjectId,
   },
   imageUrl: {
     type: String,
@@ -13,7 +13,7 @@ const profileSchema = new mongoose.Schema({
     type: Number,
   },
   dateOfBirth: {
-    type: Date,
+    type: String,
   },
   gender: {
     type: String,

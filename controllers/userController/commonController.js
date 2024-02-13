@@ -4,17 +4,17 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const signup = async (req, res) => {
-  console.log('sudais');
-  console.log(req.body);
+  // console.log('sudais');
+  // console.log(req.body);
   const {username, email, password, confirmPassword} = req.body;
-  console.log(username, email, password, confirmPassword);
+  // console.log(username, email, password, confirmPassword);
   if (!username || !email || !password || !confirmPassword) {
     res.status(400).json({message: 'Enter your details'});
   }
   const existingUser = await Users.findOne({
     $or: [{email}, {username}],
   });
-  console.log(existingUser);
+  // console.log(existingUser);
   if (existingUser) {
     if (existingUser.email === email) {
       return res
@@ -29,7 +29,7 @@ const signup = async (req, res) => {
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
     console.log(otp);
     try {
-      console.log('annachiee');
+      // console.log('annachiee');
       await emailService(email, otp);
       res.status(200).json({message: 'OTP is successfully sent', otp});
     } catch (error) {
@@ -41,11 +41,11 @@ const signup = async (req, res) => {
 
 const otpVerify = async (req, res) => {
   const {sendedotp, enteredotp} = req.body;
-  console.log(`serverotp ${sendedotp}  enteredotp ${enteredotp}`);
+  // console.log(`serverotp ${sendedotp}  enteredotp ${enteredotp}`);
 
   // Check if entered OTP matches the generated OTP
   if (String(sendedotp) !== enteredotp) {
-    console.log('otp verification failed');
+    // console.log('otp verification failed');
     return res.status(400).json({message: 'Invalid OTP'});
   }
   try {
@@ -60,9 +60,9 @@ const otpVerify = async (req, res) => {
       dateCreated,
       deleteStatus,
     } = req.body;
-    console.log('-------------------------------');
-    console.log(req.body);
-    console.log('-------------------------------');
+    // console.log('-------------------------------');
+    // console.log(req.body);
+    // console.log('-------------------------------');
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -77,20 +77,20 @@ const otpVerify = async (req, res) => {
       dateCreated,
       deleteStatus,
     });
-    console.log('-------------------------------');
-    console.log(newUser);
-    console.log('-------------------------------');
+    // console.log('-------------------------------');
+    // console.log(newUser);
+    // console.log('-------------------------------');
     // Save the new user to the database
     await newUser.save();
     const token = jwt.sign({userId: newUser._id}, process.env.SECRET_KEY, {
       expiresIn: '1h',
     });
 
-    console.log('***********************');
-    console.log('TOKEN', token);
-    console.log('***********************');
+    // console.log('***********************');
+    // console.log('TOKEN', token);
+    // console.log('***********************');
 
-    console.log('otp verified successfully');
+    // console.log('otp verified successfully');
     return res
         .status(200)
         .json({success: true, message: 'OTP verified successfully', token});
@@ -104,9 +104,9 @@ const login = async (req, res) => {
   try {
     const {usernameOrEmail, password} = req.body;
 
-    console.log('-----------------------------------');
-    console.log(req.body);
-    console.log('-----------------------------------');
+    // console.log('-----------------------------------');
+    // console.log(req.body);
+    // console.log('-----------------------------------');
 
     if (!usernameOrEmail || !password) {
       console.log('Enter the fields properly');
@@ -117,8 +117,8 @@ const login = async (req, res) => {
       $or: [{email: usernameOrEmail}, {username: usernameOrEmail}],
     });
 
-    console.log(existingUser);
-    console.log('======================');
+    // console.log(existingUser);
+    // console.log('======================');
     if (existingUser) {
       if (!existingUser.deleteStatus) {
         const matchPassword = await bcrypt.compare(
