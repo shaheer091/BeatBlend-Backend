@@ -104,9 +104,9 @@ const login = async (req, res) => {
   try {
     const {usernameOrEmail, password} = req.body;
 
-    // console.log('-----------------------------------');
-    // console.log(req.body);
-    // console.log('-----------------------------------');
+    console.log('-----------------------------------');
+    console.log(req.body);
+    console.log('-----------------------------------');
 
     if (!usernameOrEmail || !password) {
       console.log('Enter the fields properly');
@@ -117,8 +117,8 @@ const login = async (req, res) => {
       $or: [{email: usernameOrEmail}, {username: usernameOrEmail}],
     });
 
-    // console.log(existingUser);
-    // console.log('======================');
+    console.log(existingUser);
+    console.log('======================');
     if (existingUser) {
       if (!existingUser.deleteStatus) {
         const matchPassword = await bcrypt.compare(
@@ -130,6 +130,10 @@ const login = async (req, res) => {
           console.log('Password did not match');
           return res.json({message: 'Password did not match'});
         }
+        let role;
+        if (existingUser.role == 'admin') {
+          role=existingUser.role;
+        }
         const token = jwt.sign(
             {userId: existingUser._id},
             process.env.SECRET_KEY,
@@ -137,7 +141,12 @@ const login = async (req, res) => {
         );
 
         console.log('Login successful');
-        return res.json({success: true, message: 'Login successful', token});
+        return res.json({
+          success: true,
+          message: 'Login successful',
+          token,
+          role: role,
+        });
       } else {
         console.log('This account has been deleted');
         return res.json({message: 'This account has been deleted'});
