@@ -2,6 +2,7 @@ const Users = require('../../models/userSchema');
 const Profile = require('../../models/profileSchema');
 const mongoose = require('mongoose');
 const sendOtp = require('../../utility/sendOtp');
+const verifyOtpFn = require('../../utility/verifyOtp');
 const getProfile = async (req, res) => {
   try {
     // console.log('------------------------------');
@@ -79,8 +80,25 @@ const verifyPhone = async (req, res) => {
   }
 };
 
+const verifyOtp = async (req, res) => {
+  const phone = req.body.phone;
+  const otp = req.body.otp;
+  console.log(req.body);
+  try {
+    const status = verifyOtpFn(phone, otp);
+    if (!status == 'approved') {
+      res.json({message: 'OTP verification failed'});
+    } else {
+      res.json({message: 'OTP is verified succesfully'});
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   verifyPhone,
+  verifyOtp,
 };
