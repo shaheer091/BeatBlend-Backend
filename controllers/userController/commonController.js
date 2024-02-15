@@ -93,7 +93,12 @@ const otpVerify = async (req, res) => {
     // console.log('otp verified successfully');
     return res
         .status(200)
-        .json({success: true, message: 'OTP verified successfully', token});
+        .json({
+          success: true,
+          message: 'OTP verified successfully',
+          token,
+          role: newUser.role,
+        });
   } catch (error) {
     console.error('Error saving user:', error);
     return res.status(500).json({error: 'Internal Server error'});
@@ -131,9 +136,12 @@ const login = async (req, res) => {
           return res.json({message: 'Password did not match'});
         }
         let role;
-        if (existingUser.role == 'admin') {
-          role=existingUser.role;
+        if (existingUser.role == 'user') {
+          role = existingUser.role;
+        } else if (existingUser.role == 'admin') {
+          role = existingUser.role;
         }
+
         const token = jwt.sign(
             {userId: existingUser._id},
             process.env.SECRET_KEY,
