@@ -3,6 +3,7 @@ const Profile = require('../../models/profileSchema');
 const mongoose = require('mongoose');
 const sendOtp = require('../../utility/sendOtp');
 const verifyOtpFn = require('../../utility/verifyOtp');
+
 const getProfile = async (req, res) => {
   try {
     // console.log('------------------------------');

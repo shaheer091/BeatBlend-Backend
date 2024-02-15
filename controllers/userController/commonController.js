@@ -140,6 +140,8 @@ const login = async (req, res) => {
           role = existingUser.role;
         } else if (existingUser.role == 'admin') {
           role = existingUser.role;
+        } else if (existingUser.role == 'artist') {
+          role = existingUser.role;
         }
 
         const token = jwt.sign(
