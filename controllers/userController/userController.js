@@ -1,5 +1,6 @@
 const Users = require('../../models/userSchema');
 const Profile = require('../../models/profileSchema');
+const PendingUser = require('../../models/pendingUserSchema');
 const mongoose = require('mongoose');
 const sendOtp = require('../../utility/sendOtp');
 const verifyOtpFn = require('../../utility/verifyOtp');
@@ -97,9 +98,37 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+const verifyUser =async (req, res) => {
+  console.log('inside verifyUser function');
+  try {
+    console.log(req.body);
+    const socialMediaLink = req.body.socialMediaLink;
+    const userId=req.tockens.userId;
+    console.log(userId);
+    const user = await Users.findOne({_id: userId});
+    if (user) {
+      const pendingUser = new PendingUser({
+        userId: user._id,
+        username: user.username,
+        email: user.email,
+        socialMediaLink: socialMediaLink,
+        role: user.role,
+        isVerified: false,
+        deleteStatus: false,
+      });
+      await pendingUser.save();
+    } else {
+      console.log('no user found');
+    }
+  } catch (err) {
+    console.log('ending error', err);
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   verifyPhone,
   verifyOtp,
+  verifyUser,
 };

@@ -1,7 +1,7 @@
 const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
-const common = require('../controllers/userController/commonController');
+const common = require('../controllers/commonController/commonController');
 const getUserId = require('../middleware/getUserId');
 
 router.post('/signup', common.signup);

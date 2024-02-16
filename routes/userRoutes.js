@@ -14,5 +14,6 @@ router.patch(
 );
 router.post('/verifyPhone', getUserId, user.verifyPhone);
 router.post('/verifyOtp', getUserId, user.verifyOtp);
+router.post('/artistVerify', getUserId, user.verifyUser);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const Users = require('../../models/userSchema');
+// const PendingUser = require('../../models/pendingUserSchema');
 const emailService = require('./emailController');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -91,14 +92,12 @@ const otpVerify = async (req, res) => {
     // console.log('***********************');
 
     // console.log('otp verified successfully');
-    return res
-        .status(200)
-        .json({
-          success: true,
-          message: 'OTP verified successfully',
-          token,
-          role: newUser.role,
-        });
+    return res.status(200).json({
+      success: true,
+      message: 'OTP verified successfully',
+      token,
+      role: newUser.role,
+    });
   } catch (error) {
     console.error('Error saving user:', error);
     return res.status(500).json({error: 'Internal Server error'});

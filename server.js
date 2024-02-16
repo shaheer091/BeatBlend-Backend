@@ -5,6 +5,7 @@ require('dotenv').config();
 const cors = require('cors');
 const commonRoutes = require('./routes/commonRoutes');
 const userRoutes = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const port = process.env.PORT;
@@ -14,6 +15,7 @@ app.use(cors());
 
 app.use('/', commonRoutes);
 app.use('/user', userRoutes);
+app.use('/admin', adminRoutes);
 
 const dbURI = process.env.DATABASE;
 mongoose.connect(dbURI);

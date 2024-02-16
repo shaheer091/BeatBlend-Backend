@@ -1,11 +1,15 @@
 const jwt = require('jsonwebtoken');
 
 const decodeUserId = (req, res, next) => {
-  const token = req.headers.authorization;
-  const decodedToken = jwt.decode(token);
-  console.log(decodedToken);
-  req.tockens = decodedToken;
-  next();
+  try {
+    const token = req.headers.authorization;
+    const decodedToken = jwt.decode(token);
+    console.log('req.tockens', decodedToken);
+    req.tockens = decodedToken;
+    next();
+  } catch (err) {
+    console.log('getUserID middleware', err);
+  }
 };
 
 module.exports = decodeUserId;
