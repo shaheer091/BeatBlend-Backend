@@ -2,6 +2,7 @@ const Users = require('../../models/userSchema');
 // const Profile = require('../../models/profileSchema');
 const PendingUser = require('../../models/pendingUserSchema');
 // const mongoose = require('mongoose');
+const emailController = require('../commonController/emailController');
 
 const getAllUsers = async (req, res) => {
   const user = await Users.find({role: 'user'});
@@ -39,40 +40,49 @@ const getAllAdmin = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
+const changeDeleteStatus = async (req, res) => {
   try {
     const userID = req.body.userId;
+    const user = await Users.findOne({_id: userID});
+    const newDeleteStatus = !user.deleteStatus;
     await Users.updateOne(
         {_id: userID},
-        {$set: {deleteStatus: true}},
+        {$set: {deleteStatus: newDeleteStatus}},
     );
-    console.log('user deleted');
-    res.json({message: 'user deleted successfully'});
+    if (newDeleteStatus) {
+      console.log('user deleted');
+      res.json({message: 'user deleted successfully'});
+    } else {
+      console.log('user undeleted');
+      res.json({message: 'user undeleted successfully'});
+    }
   } catch (err) {
     console.log(err);
     res.json({message: 'error deleting user'});
   }
 };
-const unDeleteUser = async (req, res) =>{
+
+const approveUser = async (req, res) => {
   try {
-    const userID = req.body.userId;
+    const userId = req.body.userId;
+    const user = await Users.findOne({_id: userId});
     await Users.updateOne(
-        {_id: userID},
-        {$set: {deleteStatus: false}},
+        {_id: userId},
+        {$set: {role: 'artist', isVerified: true}},
     );
-    console.log('user undeleted');
-    res.json({message: 'user undeleted successfully'});
+    await PendingUser.deleteOne({userId});
+    console.log('User approved successfully');
+    await emailController.approveUser(user.email);
+    res.status(200).json({message: 'User approved successfully'});
   } catch (err) {
     console.log(err);
   }
 };
-
-
 module.exports = {
   getAllUsers,
   getAllArtist,
   getAllPending,
   getAllAdmin,
-  deleteUser,
-  unDeleteUser,
+  changeDeleteStatus,
+  approveUser,
 };

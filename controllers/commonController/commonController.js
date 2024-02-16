@@ -31,7 +31,7 @@ const signup = async (req, res) => {
     console.log(otp);
     try {
       // console.log('annachiee');
-      await emailService(email, otp);
+      await emailService.sendOtp(email, otp);
       res.status(200).json({message: 'OTP is successfully sent', otp});
     } catch (error) {
       console.log(`error sending otp to email ${error}`);

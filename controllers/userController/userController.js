@@ -4,6 +4,7 @@ const PendingUser = require('../../models/pendingUserSchema');
 const mongoose = require('mongoose');
 const sendOtp = require('../../utility/sendOtp');
 const verifyOtpFn = require('../../utility/verifyOtp');
+const emailController = require('../commonController/emailController');
 
 const getProfile = async (req, res) => {
   try {
@@ -117,6 +118,7 @@ const verifyUser =async (req, res) => {
         deleteStatus: false,
       });
       await pendingUser.save();
+      await emailController.requestApproval(user.email);
     } else {
       console.log('no user found');
     }

@@ -8,8 +8,8 @@ router.get('/seeAllArtist', admin.getAllArtist);
 router.get('/seeAllPending', admin.getAllPending);
 router.get('/seeAllAdmin', admin.getAllAdmin);
 
-router.patch('/deleteUser', admin.deleteUser);
-router.patch('/unDeleteUser', admin.unDeleteUser);
+router.patch('/changeDeleteStatus', admin.changeDeleteStatus);
+router.patch('/approveUser', admin.approveUser);
 
 
 module.exports=router;

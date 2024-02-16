@@ -18,9 +18,51 @@ const sendOtp = async function(email, otp) {
     text: `your otp for ${email} is ${otp}`,
   };
 
-  await transporter.sendMail(mailOption).then(() => {
+  try {
+    await transporter.sendMail(mailOption);
     console.log('mailsended');
-  });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-module.exports = sendOtp;
+const requestApproval = async function(email) {
+  console.log(email);
+  const mailOption = {
+    from: process.env.EMAIL,
+    to: email,
+    subject: 'Artist Approval Notification',
+    // eslint-disable-next-line max-len
+    text: 'Dear User,\n\nYour request to become an artist has been received and is currently under review by the admin. Please wait patiently for further updates.\n\nBest regards,\nThe Admin Team',
+  };
+  try {
+    await transporter.sendMail(mailOption);
+    console.log('approval mail send');
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const approveUser = async function(email) {
+  console.log(email);
+  const mailOption = {
+    from: process.env.EMAIL,
+    to: email,
+    subject: 'Your Artist Request Has Been Approved',
+    // eslint-disable-next-line max-len
+    text: 'Dear user,\n\nYour request to become an artist has been approved by the admin. Congratulations! You can now access artist features on our platform.\n\nBest regards,\nThe Admin Team',
+  };
+  try {
+    await transporter.sendMail(mailOption);
+    console.log('approval mail send');
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+module.exports = {
+  sendOtp,
+  approveUser,
+  requestApproval,
+};
