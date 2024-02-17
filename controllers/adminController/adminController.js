@@ -6,37 +6,46 @@ const emailController = require('../commonController/emailController');
 
 const getAllUsers = async (req, res) => {
   const user = await Users.find({role: 'user'});
-  if (user) {
-    res.json({user});
+  if (user.length > 0) {
+    console.log('user found');
+    res.json({user, success: true});
   } else {
-    res.json({message: 'No user found'});
+    console.log('user not found');
+    res.json({message: 'No user found', success: false});
   }
 };
 
 const getAllArtist = async (req, res) => {
   const artist = await Users.find({role: 'artist'});
-  if (artist) {
-    res.json({artist});
+  if (artist.length > 0) {
+    console.log('artist found');
+    res.json({artist, success: true});
   } else {
-    res.json({message: 'No artist Found'});
+    console.log('artist not found');
+    res.json({message: 'No artist Found', success: false});
   }
 };
 
 const getAllPending = async (req, res) => {
   const pending = await PendingUser.find();
-  if (pending) {
-    res.json({pending});
+  if (pending.length > 0) {
+    console.log('pending found');
+    res.json({pending, success: true});
   } else {
-    res.json({message: 'No pending User Found'});
+    console.log('pending not found');
+    res.json({message: 'No pending User Found', success: false});
   }
 };
 
+
 const getAllAdmin = async (req, res) => {
   const admin = await Users.find({role: 'admin'});
-  if (admin) {
-    res.json({admin});
+  if (admin.length > 0) {
+    console.log('admin found');
+    res.json({admin, success: true});
   } else {
-    res.json({message: 'No Admin Found'});
+    console.log('admin not found');
+    res.json({message: 'No Admin Found', success: false});
   }
 };
 
