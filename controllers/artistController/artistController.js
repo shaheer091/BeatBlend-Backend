@@ -1,4 +1,6 @@
+const mongoose = require('mongoose');
 const Songs = require('../../models/songSchema');
+// const User = require('../../models/userSchema');
 
 const addSong = async (req, res) => {
   try {
@@ -33,6 +35,47 @@ const addSong = async (req, res) => {
     });
   }
 };
+
+const getSong = async (req, res) => {
+  try {
+    console.log('inside getsong ');
+    // eslint-disable-next-line new-cap
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    console.log(userId);
+    const songs = await Songs.aggregate([{$match: {userId: userId}}]);
+    // const user = await User.aggregate([
+    //   {$match: {_id: userId}},
+    //   {
+    //     $lookup: {
+    //       from: 'songs',
+    //       localField: '_id',
+    //       foreignField: 'userId',
+    //       as: 'songs',
+    //     },
+    //   },
+    // ]);
+    console.log(songs);
+    res.json(songs);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const deleteSong = async (req, res) => {
+  try {
+    console.log('delete clicked');
+    console.log(req.params.id);
+    const songId = req.params.id;
+    await Songs.findByIdAndDelete(songId);
+    res.json({message: 'song deleted succesfully'});
+  } catch (err) {
+    console.log(err);
+    res.json({err});
+  }
+};
+
 module.exports = {
   addSong,
+  getSong,
+  deleteSong,
 };

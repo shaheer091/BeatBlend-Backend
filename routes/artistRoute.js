@@ -5,5 +5,7 @@ const artist = require('../controllers/artistController/artistController');
 const userID = require('../middleware/getUserId');
 
 router.post('/addSong', userID, artist.addSong);
+router.get('/songs', userID, artist.getSong);
+router.delete('/deleteSong/:id', artist.deleteSong);
 
 module.exports=router;
