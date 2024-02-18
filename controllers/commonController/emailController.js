@@ -44,17 +44,33 @@ const requestApproval = async function(email) {
 };
 
 const approveUser = async function(email) {
-  console.log(email);
-  const mailOption = {
-    from: process.env.EMAIL,
-    to: email,
-    subject: 'Your Artist Request Has Been Approved',
-    // eslint-disable-next-line max-len
-    text: 'Dear user,\n\nYour request to become an artist has been approved by the admin. Congratulations! You can now access artist features on our platform.\n\nBest regards,\nThe Admin Team',
-  };
   try {
+    console.log(email);
+    const mailOption = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Your Artist Request Has Been Approved',
+      // eslint-disable-next-line max-len
+      text: 'Dear user,\n\nYour request to become an artist has been approved by the admin. Congratulations! You can now access artist features on our platform.\n\nBest regards,\nThe Admin Team',
+    };
     await transporter.sendMail(mailOption);
     console.log('approval mail send');
+  } catch (err) {
+    console.log(err);
+  }
+};
+const declineUser = async function(email) {
+  try {
+    console.log(email);
+    const mailOption ={
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Your Artist Request Has Been Declined',
+      // eslint-disable-next-line max-len
+      text: 'Dear user,\n\nYour request to become an artist has been declined by the admin. Sorry... Better luck next time.\n\nBest regards,\nThe Admin Team',
+    };
+    await transporter.sendMail(mailOption);
+    console.log('decline mail send');
   } catch (err) {
     console.log(err);
   }
@@ -65,4 +81,5 @@ module.exports = {
   sendOtp,
   approveUser,
   requestApproval,
+  declineUser,
 };

@@ -47,7 +47,7 @@ const otpVerify = async (req, res) => {
   // Check if entered OTP matches the generated OTP
   if (String(sendedotp) !== enteredotp) {
     // console.log('otp verification failed');
-    return res.status(400).json({message: 'Invalid OTP'});
+    return res.status(400).json({message: 'Invalid OTP', success: false});
   }
   try {
     // Extract user data from the request body or any other source

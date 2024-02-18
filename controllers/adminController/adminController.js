@@ -37,7 +37,6 @@ const getAllPending = async (req, res) => {
   }
 };
 
-
 const getAllAdmin = async (req, res) => {
   const admin = await Users.find({role: 'admin'});
   if (admin.length > 0) {
@@ -79,14 +78,32 @@ const approveUser = async (req, res) => {
         {_id: userId},
         {$set: {role: 'artist', isVerified: true}},
     );
-    await PendingUser.deleteOne({userId});
     console.log('User approved successfully');
     await emailController.approveUser(user.email);
     res.status(200).json({message: 'User approved successfully'});
+    await PendingUser.deleteOne({userId});
   } catch (err) {
     console.log(err);
   }
 };
+
+const declineUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log(userId);
+    const user = await PendingUser.find({userId: userId});
+    console.log(user);
+    const userEmail = user[0].email;
+    console.log(userEmail);
+    await emailController.declineUser(userEmail);
+    await PendingUser.deleteOne({userId});
+    res.json({message: 'User Decline and mail send successfully'});
+  } catch (err) {
+    console.log(err);
+    res.json({message: 'Error while declining User'});
+  }
+};
+
 module.exports = {
   getAllUsers,
   getAllArtist,
@@ -94,4 +111,5 @@ module.exports = {
   getAllAdmin,
   changeDeleteStatus,
   approveUser,
+  declineUser,
 };

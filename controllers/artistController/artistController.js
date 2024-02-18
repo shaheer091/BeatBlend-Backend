@@ -43,19 +43,12 @@ const getSong = async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     console.log(userId);
     const songs = await Songs.aggregate([{$match: {userId: userId}}]);
-    // const user = await User.aggregate([
-    //   {$match: {_id: userId}},
-    //   {
-    //     $lookup: {
-    //       from: 'songs',
-    //       localField: '_id',
-    //       foreignField: 'userId',
-    //       as: 'songs',
-    //     },
-    //   },
-    // ]);
     console.log(songs);
-    res.json(songs);
+    if (songs.length>0) {
+      res.json({songs, message: 'songs found', success: true});
+    } else {
+      res.json({message: 'No Songs Found', success: false});
+    }
   } catch (err) {
     console.log(err);
   }

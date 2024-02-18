@@ -11,5 +11,7 @@ router.get('/seeAllAdmin', admin.getAllAdmin);
 router.patch('/changeDeleteStatus', admin.changeDeleteStatus);
 router.patch('/approveUser', admin.approveUser);
 
+router.delete('/declineUser/:id', admin.declineUser);
+
 
 module.exports=router;
