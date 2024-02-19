@@ -6,6 +6,7 @@ require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 const accessId = process.env.AWS_ACCESS_KEY;
 const secretKey = process.env.AWS_SECRET_ACCESS_KEY;
 const region = process.env.AWS_REGION;
+const bucket = process.env.AWS_BUCKET;
 
 aws.config.update({
   accessKeyId: accessId,
@@ -18,12 +19,12 @@ const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
     s3: s3,
-    bucket: process.env.AWS_BUCKET,
+    bucket: bucket,
     metadata: function(request, file, cb) {
       cb(null, {fieldname: file.fieldname});
     },
     key: function(request, file, cb) {
-      cb(null, Date.now().toString()+'-'+file.originalname);
+      cb(null, Date.now().toString() + '-' + file.originalname);
       console.log('file uploaded successfully');
     },
   }),

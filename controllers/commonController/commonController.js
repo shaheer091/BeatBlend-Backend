@@ -5,17 +5,13 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const signup = async (req, res) => {
-  // console.log('sudais');
-  // console.log(req.body);
   const {username, email, password, confirmPassword} = req.body;
-  // console.log(username, email, password, confirmPassword);
   if (!username || !email || !password || !confirmPassword) {
     res.status(400).json({message: 'Enter your details'});
   }
   const existingUser = await Users.findOne({
     $or: [{email}, {username}],
   });
-  // console.log(existingUser);
   if (existingUser) {
     if (existingUser.email === email) {
       return res
@@ -27,10 +23,9 @@ const signup = async (req, res) => {
           .json({message: 'User with this username already exists'});
     }
   } else {
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-    console.log(otp);
     try {
-      // console.log('annachiee');
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+      console.log(otp);
       await emailService.sendOtp(email, otp);
       res.status(200).json({message: 'OTP is successfully sent', otp});
     } catch (error) {
@@ -78,20 +73,10 @@ const otpVerify = async (req, res) => {
       dateCreated,
       deleteStatus,
     });
-    // console.log('-------------------------------');
-    // console.log(newUser);
-    // console.log('-------------------------------');
-    // Save the new user to the database
     await newUser.save();
     const token = jwt.sign({userId: newUser._id}, process.env.SECRET_KEY, {
       expiresIn: '1h',
     });
-
-    // console.log('***********************');
-    // console.log('TOKEN', token);
-    // console.log('***********************');
-
-    // console.log('otp verified successfully');
     return res.status(200).json({
       success: true,
       message: 'OTP verified successfully',
@@ -134,20 +119,16 @@ const login = async (req, res) => {
           console.log('Password did not match');
           return res.json({message: 'Password did not match'});
         }
-        let role;
-        if (existingUser.role == 'user') {
-          role = existingUser.role;
-        } else if (existingUser.role == 'admin') {
-          role = existingUser.role;
-        } else if (existingUser.role == 'artist') {
-          role = existingUser.role;
-        }
+        const role = existingUser.role;
 
         const token = jwt.sign(
             {userId: existingUser._id},
             process.env.SECRET_KEY,
             {expiresIn: '1h'},
         );
+
+        console.log('fdakjsfdjasfdhaskjdfkjahsdfkhaskfdjhksjahfdiuucb');
+        console.log(token);
 
         console.log('Login successful');
         return res.json({

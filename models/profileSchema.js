@@ -18,6 +18,9 @@ const profileSchema = new mongoose.Schema({
   gender: {
     type: String,
   },
+  artistName: {
+    type: String,
+  },
 });
 
 const userProfile = mongoose.model('userProfile', profileSchema);

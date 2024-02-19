@@ -104,6 +104,9 @@ const verifyUser =async (req, res) => {
   try {
     console.log(req.body);
     const socialMediaLink = req.body.socialMediaLink;
+    if (!socialMediaLInk) {
+      res.json({message: 'enter social media link'});
+    }
     const userId=req.tockens.userId;
     console.log(userId);
     const user = await Users.findOne({_id: userId});
