@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Songs = require('../../models/songSchema');
 const User = require('../../models/userSchema');
-// const Profile = require('../../models/profileSchema');
+const Profile = require('../../models/profileSchema');
 
 const addSong = async (req, res) => {
   try {
@@ -70,8 +70,9 @@ const deleteSong = async (req, res) => {
   }
 };
 const getProfile = async (req, res) => {
+  console.log('inside getProfile');
   const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-  console.log(userId);
+  // console.log(userId);
   const user = await User.findOne({_id: userId});
   // console.log(user);
   const artistProfile = await User.aggregate([
@@ -85,8 +86,44 @@ const getProfile = async (req, res) => {
       },
     },
   ]);
-  // console.log(artistProfile[0].profile);
+  console.log(artistProfile[0].profile);
   res.json({artistProfile, user});
+};
+
+const updateProfile = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    console.log(userId);
+    const {username, email, bio, phoneNumber, dateOfBirth, file} =
+      req.body.profileDetails;
+    console.log(req.body);
+
+    await User.updateOne(
+        {_id: userId},
+        {
+          $set: {
+            username,
+            email,
+          },
+        },
+        // {upsert: true},
+    );
+    const one = await Profile.updateOne(
+        {userId: userId},
+        {
+          $set: {
+            imageUrl: file,
+            bio,
+            phoneNumber,
+            dateOfBirth,
+          },
+        },
+        // {upsert: true},
+    );
+    console.log(one);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 module.exports = {
@@ -94,4 +131,5 @@ module.exports = {
   getSong,
   deleteSong,
   getProfile,
+  updateProfile,
 };

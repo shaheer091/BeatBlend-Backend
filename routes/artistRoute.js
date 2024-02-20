@@ -4,9 +4,12 @@ const router = express.Router();
 const artist = require('../controllers/artistController/artistController');
 const userID = require('../middleware/getUserId');
 
-router.post('/addSong', userID, artist.addSong);
 router.get('/songs', userID, artist.getSong);
 router.get('/profile', userID, artist.getProfile);
+
+router.post('/addSong', userID, artist.addSong);
+router.patch('/profile', userID, artist.updateProfile);
+
 router.delete('/deleteSong/:id', artist.deleteSong);
 
 

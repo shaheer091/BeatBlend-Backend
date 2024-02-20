@@ -7,6 +7,7 @@ const verifyOtpFn = require('../../utility/verifyOtp');
 const emailController = require('../commonController/emailController');
 
 const getProfile = async (req, res) => {
+  // console.log('inside getProfile function');
   try {
     // console.log('------------------------------');
     // console.log(req.tockens.userId);
@@ -23,7 +24,7 @@ const getProfile = async (req, res) => {
       },
     ]);
     res.json({userProfile});
-    // console.log(userProfile[0]);
+    console.log(userProfile[0]);
   } catch (error) {
     console.log(error);
   }
@@ -45,9 +46,6 @@ const updateProfile = async (req, res) => {
             gender,
           },
         },
-        {
-          upsert: true,
-        },
     );
     await Users.updateOne(
         {_id: req.tockens.userId},
@@ -56,9 +54,6 @@ const updateProfile = async (req, res) => {
             username,
             email,
           },
-        },
-        {
-          upsert: true,
         },
     );
     res.json({message: 'Profile updated successfully'});
