@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Songs = require('../../models/songSchema');
 const User = require('../../models/userSchema');
+// const Profile = require('../../models/profileSchema');
 
 const addSong = async (req, res) => {
   try {
@@ -40,15 +41,11 @@ const getSong = async (req, res) => {
   try {
     console.log('inside getsong ');
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-    // console.log(userId);
     const songs = await Songs.aggregate([{$match: {userId: userId}}]);
-    // console.log(songs);
     let username;
-    if (songs.length>0) {
+    if (songs.length > 0) {
       const user = await User.findOne(userId);
-      // console.log(user);
       username = user.username;
-    // console.log(username);
     }
     if (songs.length > 0) {
       res.json({songs, message: 'songs found', success: true, username});
@@ -72,10 +69,29 @@ const deleteSong = async (req, res) => {
     res.json({err});
   }
 };
-
+const getProfile = async (req, res) => {
+  const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+  console.log(userId);
+  const user = await User.findOne({_id: userId});
+  // console.log(user);
+  const artistProfile = await User.aggregate([
+    {$match: {_id: userId}},
+    {
+      $lookup: {
+        from: 'userprofiles',
+        localField: '_id',
+        foreignField: 'userId',
+        as: 'profile',
+      },
+    },
+  ]);
+  // console.log(artistProfile[0].profile);
+  res.json({artistProfile, user});
+};
 
 module.exports = {
   addSong,
   getSong,
   deleteSong,
+  getProfile,
 };
