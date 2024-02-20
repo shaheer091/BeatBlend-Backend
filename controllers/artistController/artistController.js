@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Songs = require('../../models/songSchema');
-// const User = require('../../models/userSchema');
+const User = require('../../models/userSchema');
 
 const addSong = async (req, res) => {
   try {
@@ -39,13 +39,19 @@ const addSong = async (req, res) => {
 const getSong = async (req, res) => {
   try {
     console.log('inside getsong ');
-    // eslint-disable-next-line new-cap
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-    console.log(userId);
+    // console.log(userId);
     const songs = await Songs.aggregate([{$match: {userId: userId}}]);
-    console.log(songs);
+    // console.log(songs);
+    let username;
     if (songs.length>0) {
-      res.json({songs, message: 'songs found', success: true});
+      const user = await User.findOne(userId);
+      // console.log(user);
+      username = user.username;
+    // console.log(username);
+    }
+    if (songs.length > 0) {
+      res.json({songs, message: 'songs found', success: true, username});
     } else {
       res.json({message: 'No Songs Found', success: false});
     }
@@ -66,6 +72,7 @@ const deleteSong = async (req, res) => {
     res.json({err});
   }
 };
+
 
 module.exports = {
   addSong,
