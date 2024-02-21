@@ -7,13 +7,13 @@ const upload = require('../middleware/multer');
 
 router.get('/profile', getUserId, user.getProfile);
 
-router.patch('/profile', upload.single('file'));
+router.put('/profile', upload.single('file'));
 
 router.post('/verifyPhone', getUserId, user.verifyPhone);
 router.post('/verifyOtp', getUserId, user.verifyOtp);
 router.post('/artistVerify', getUserId, user.verifyUser);
+router.post('/search', user.search);
 
 module.exports = router;
 
-
-// , getUserId, user.updateProfile;
+// , getUserId, user.updateProfile

@@ -94,18 +94,15 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-const verifyUser =async (req, res) => {
+const verifyUser = async (req, res) => {
   try {
     const socialMediaLink = req.body.socialMediaLink;
 
     // Make sure user provided socsial links
     if (!socialMediaLink) {
-      throw Object.assign(
-          new Error('Please enter social media link!'),
-          {
-            statusCode: 202,
-          },
-      );
+      throw Object.assign(new Error('Please enter social media link!'), {
+        statusCode: 202,
+      });
     }
 
     const userId = req.tockens.userId;
@@ -144,10 +141,25 @@ const verifyUser =async (req, res) => {
   }
 };
 
+const search = async (req, res) => {
+  try {
+    console.log(req.body.text);
+    const searchText = req.body.text;
+    const users = await Users.find({
+      username: {$regex: searchText, $options: 'i'},
+    });
+    console.log(users);
+    res.json(users);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   verifyPhone,
   verifyOtp,
   verifyUser,
+  search,
 };

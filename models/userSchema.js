@@ -27,6 +27,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+  following: {
+    type: [mongoose.Types.ObjectId],
+  },
+  followers: {
+    type: [mongoose.Types.ObjectId],
+  },
   dateCreated: {
     type: Date,
     required: true,
