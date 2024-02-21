@@ -1,31 +1,30 @@
 const multer = require('multer');
 const multerS3 = require('multer-s3');
-const aws = require('aws-sdk');
-require('aws-sdk/lib/maintenance_mode_message').suppress = true;
+const {S3Client} = require('@aws-sdk/client-s3');
 
-const accessId = process.env.AWS_ACCESS_KEY;
-const secretKey = process.env.AWS_SECRET_ACCESS_KEY;
+require('dotenv').config();
+
+const myBucket = process.env.AWS_BUCKET;
+
 const region = process.env.AWS_REGION;
-const bucket = process.env.AWS_BUCKET;
 
-aws.config.update({
-  accessKeyId: accessId,
-  secretAccessKey: secretKey,
-  region: region,
+const s3Client = new S3Client({
+  region,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
-
-const s3 = new aws.S3();
 
 const upload = multer({
   storage: multerS3({
-    s3: s3,
-    bucket: bucket,
-    metadata: function(request, file, cb) {
-      cb(null, {fieldname: file.fieldname});
+    s3: s3Client,
+    bucket: myBucket,
+    metadata: function(req, file, cb) {
+      cb(null, {fieldName: file.originalname});
     },
-    key: function(request, file, cb) {
+    key: function(req, file, cb) {
       cb(null, Date.now().toString() + '-' + file.originalname);
-      console.log('file uploaded successfully');
     },
   }),
 });

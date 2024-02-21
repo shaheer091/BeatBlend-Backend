@@ -95,33 +95,52 @@ const verifyOtp = async (req, res) => {
 };
 
 const verifyUser =async (req, res) => {
-  console.log('inside verifyUser function');
   try {
-    console.log(req.body);
     const socialMediaLink = req.body.socialMediaLink;
-    if (!socialMediaLInk) {
-      res.json({message: 'enter social media link'});
+
+    // Make sure user provided socsial links
+    if (!socialMediaLink) {
+      throw Object.assign(
+          new Error('Please enter social media link!'),
+          {
+            statusCode: 202,
+          },
+      );
     }
-    const userId=req.tockens.userId;
-    console.log(userId);
+
+    const userId = req.tockens.userId;
+
+    // Get user details from db
     const user = await Users.findOne({_id: userId});
-    if (user) {
-      const pendingUser = new PendingUser({
-        userId: user._id,
-        username: user.username,
-        email: user.email,
-        socialMediaLink: socialMediaLink,
-        role: user.role,
-        isVerified: false,
-        deleteStatus: false,
-      });
-      await pendingUser.save();
-      await emailController.requestApproval(user.email);
-    } else {
-      console.log('no user found');
+
+    if (!user) {
+      throw new Error('Failed to get user details with provided id!');
     }
+
+    // Create new user object
+    const pendingUser = new PendingUser({
+      userId: user._id,
+      username: user.username,
+      email: user.email,
+      socialMediaLink: socialMediaLink,
+      role: user.role,
+      isVerified: false,
+      deleteStatus: false,
+    });
+
+    // Save user
+    await pendingUser.save();
+
+    // Send an email to admin to get approuval
+    await emailController.requestApproval(user.email);
   } catch (err) {
-    console.log('ending error', err);
+    console.log(err);
+    res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message || 'An errro occured! please try later',
+      data: [],
+      err,
+    });
   }
 };
 

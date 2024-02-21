@@ -96,32 +96,40 @@ const updateProfile = async (req, res) => {
     console.log(userId);
     const {username, email, bio, phoneNumber, dateOfBirth, file} =
       req.body.profileDetails;
-    console.log(req.body);
-
-    await User.updateOne(
-        {_id: userId},
-        {
-          $set: {
-            username,
-            email,
+    const existingUser = await User.findOne({username: username});
+    if (existingUser && existingUser._id.toString() !== userId.toString()) {
+      res.json({message: 'This username is already taken', success: false});
+    } else {
+      await User.updateOne(
+          {_id: userId},
+          {
+            $set: {
+              username,
+              email,
+            },
           },
-        },
-        // {upsert: true},
-    );
-    const one = await Profile.updateOne(
-        {userId: userId},
-        {
-          $set: {
-            imageUrl: file,
-            bio,
-            phoneNumber,
-            dateOfBirth,
+          {upsert: true},
+      );
+      await Profile.updateOne(
+          {userId: userId},
+          {
+            $set: {
+              imageUrl: file,
+              bio,
+              phoneNumber,
+              dateOfBirth,
+            },
           },
-        },
-        // {upsert: true},
-    );
-    console.log(one);
+          {upsert: true},
+      );
+      res
+          .status(200)
+          .json({message: 'Profile updated successfully', success: true});
+      console.log('profile updated succesfully');
+    }
   } catch (err) {
+    res.status(500).json({message: 'Error Updating Profile', success: false});
+    console.log('error updating profile');
     console.log(err);
   }
 };
