@@ -143,13 +143,41 @@ const verifyUser = async (req, res) => {
 
 const search = async (req, res) => {
   try {
-    console.log(req.body.text);
+    // console.log(req.body.text);
     const searchText = req.body.text;
-    const users = await Users.find({
-      username: {$regex: searchText, $options: 'i'},
-    });
-    console.log(users);
-    res.json(users);
+    if (searchText !== '') {
+      const users = await Users.find({
+        username: {$regex: searchText, $options: 'i'},
+        role: {$in: ['user', 'artist']},
+      });
+      // console.log(users);
+      res.json(users);
+    } else {
+      res.json([]);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const followUser = async (req, res) => {
+  // console.log(req.body.userId);
+  // console.log(req.tockens.userId);
+  try {
+    const followingId = req.body.userId;
+    const userId = req.tockens.userId;
+    const user = await Users.findOne({_id: userId, following: followingId});
+
+    if (!user) {
+      await Users.updateOne(
+          {_id: userId},
+          {$push: {following: followingId}},
+      );
+      await Users.updateOne(
+          {_id: followingId},
+          {$push: {followers: userId}},
+      );
+    }
   } catch (err) {
     console.log(err);
   }
@@ -162,4 +190,5 @@ module.exports = {
   verifyOtp,
   verifyUser,
   search,
+  followUser,
 };
