@@ -59,6 +59,7 @@ const approveUser = async function(email) {
     console.log(err);
   }
 };
+
 const declineUser = async function(email) {
   try {
     console.log(email);

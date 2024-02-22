@@ -143,17 +143,18 @@ const verifyUser = async (req, res) => {
 
 const search = async (req, res) => {
   try {
-    // console.log(req.body.text);
+    const userId=req.tockens.userId;
     const searchText = req.body.text;
-    if (searchText !== '') {
+    if (searchText.trim() !== '') {
       const users = await Users.find({
+        _id: {$ne: userId},
         username: {$regex: searchText, $options: 'i'},
         role: {$in: ['user', 'artist']},
+        deleteStatus: false,
       });
-      // console.log(users);
-      res.json(users);
+      res.status(200).json({users, userId});
     } else {
-      res.json([]);
+      res.status(404).json({message: 'No User Found'});
     }
   } catch (err) {
     console.log(err);
@@ -177,6 +178,9 @@ const followUser = async (req, res) => {
           {_id: followingId},
           {$push: {followers: userId}},
       );
+      // res.json({following: true});
+    } else {
+      // res.json({following: false});
     }
   } catch (err) {
     console.log(err);
