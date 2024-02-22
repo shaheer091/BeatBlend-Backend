@@ -161,15 +161,25 @@ const search = async (req, res) => {
   }
 };
 
-const followUser = async (req, res) => {
+const followAndUnfollowUser = async (req, res) => {
   // console.log(req.body.userId);
   // console.log(req.tockens.userId);
   try {
     const followingId = req.body.userId;
     const userId = req.tockens.userId;
+
     const user = await Users.findOne({_id: userId, following: followingId});
 
-    if (!user) {
+    if (user) {
+      await Users.updateOne(
+          {_id: userId},
+          {$pull: {following: followingId}},
+      );
+      await Users.updateOne(
+          {_id: followingId},
+          {$pull: {followers: userId}},
+      );
+    } else {
       await Users.updateOne(
           {_id: userId},
           {$push: {following: followingId}},
@@ -178,9 +188,6 @@ const followUser = async (req, res) => {
           {_id: followingId},
           {$push: {followers: userId}},
       );
-      // res.json({following: true});
-    } else {
-      // res.json({following: false});
     }
   } catch (err) {
     console.log(err);
@@ -194,5 +201,5 @@ module.exports = {
   verifyOtp,
   verifyUser,
   search,
-  followUser,
+  followAndUnfollowUser,
 };

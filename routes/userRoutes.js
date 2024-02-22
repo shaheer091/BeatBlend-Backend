@@ -13,7 +13,7 @@ router.post('/verifyPhone', getUserId, user.verifyPhone);
 router.post('/verifyOtp', getUserId, user.verifyOtp);
 router.post('/artistVerify', getUserId, user.verifyUser);
 router.post('/search', getUserId, user.search);
-router.post('/follow', getUserId, user.followUser);
+router.post('/follow', getUserId, user.followAndUnfollowUser);
 
 module.exports = router;
 
