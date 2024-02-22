@@ -33,6 +33,9 @@ const userSchema = new mongoose.Schema({
   followers: {
     type: [mongoose.Types.ObjectId],
   },
+  favorite: {
+    type: [mongoose.Types.ObjectId],
+  },
   dateCreated: {
     type: Date,
     required: true,

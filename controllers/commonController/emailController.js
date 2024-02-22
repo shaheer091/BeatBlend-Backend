@@ -10,7 +10,6 @@ const transporter = nodemailer.createTransport({
 
 // eslint-disable-next-line require-jsdoc
 const sendOtp = async function(email, otp) {
-  console.log(email, otp);
   const mailOption = {
     from: process.env.EMAIL,
     to: email,
@@ -20,14 +19,12 @@ const sendOtp = async function(email, otp) {
 
   try {
     await transporter.sendMail(mailOption);
-    console.log('mailsended');
   } catch (err) {
     console.log(err);
   }
 };
 
 const requestApproval = async function(email) {
-  console.log(email);
   const mailOption = {
     from: process.env.EMAIL,
     to: email,
@@ -37,7 +34,6 @@ const requestApproval = async function(email) {
   };
   try {
     await transporter.sendMail(mailOption);
-    console.log('approval mail send');
   } catch (err) {
     console.log(err);
   }
@@ -45,7 +41,6 @@ const requestApproval = async function(email) {
 
 const approveUser = async function(email) {
   try {
-    console.log(email);
     const mailOption = {
       from: process.env.EMAIL,
       to: email,
@@ -54,7 +49,6 @@ const approveUser = async function(email) {
       text: 'Dear user,\n\nYour request to become an artist has been approved by the admin. Congratulations! You can now access artist features on our platform.\n\nBest regards,\nThe Admin Team',
     };
     await transporter.sendMail(mailOption);
-    console.log('approval mail send');
   } catch (err) {
     console.log(err);
   }
@@ -62,7 +56,6 @@ const approveUser = async function(email) {
 
 const declineUser = async function(email) {
   try {
-    console.log(email);
     const mailOption ={
       from: process.env.EMAIL,
       to: email,
@@ -71,7 +64,6 @@ const declineUser = async function(email) {
       text: 'Dear user,\n\nYour request to become an artist has been declined by the admin. Sorry... Better luck next time.\n\nBest regards,\nThe Admin Team',
     };
     await transporter.sendMail(mailOption);
-    console.log('decline mail send');
   } catch (err) {
     console.log(err);
   }

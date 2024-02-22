@@ -1,17 +1,14 @@
 const Users = require('../../models/userSchema');
 const Profile = require('../../models/profileSchema');
 const PendingUser = require('../../models/pendingUserSchema');
+const Songs = require('../../models/songSchema');
 const mongoose = require('mongoose');
 const sendOtp = require('../../utility/sendOtp');
 const verifyOtpFn = require('../../utility/verifyOtp');
 const emailController = require('../commonController/emailController');
 
 const getProfile = async (req, res) => {
-  // console.log('inside getProfile function');
   try {
-    // console.log('------------------------------');
-    // console.log(req.tockens.userId);
-    // console.log('------------------------------');
     const userProfile = await Users.aggregate([
       {$match: {_id: new mongoose.Types.ObjectId(req.tockens.userId)}},
       {
@@ -24,7 +21,6 @@ const getProfile = async (req, res) => {
       },
     ]);
     res.json({userProfile});
-    console.log(userProfile[0]);
   } catch (error) {
     console.log(error);
   }
@@ -32,8 +28,6 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    // console.log(req.body);
-    // console.log(req.tockens);
     const {file, bio, phoneNumber, date, gender, username, email} = req.body;
     await Profile.updateOne(
         {userId: req.tockens.userId},
@@ -64,12 +58,8 @@ const updateProfile = async (req, res) => {
 };
 
 const verifyPhone = async (req, res) => {
-  console.log('iside cerifyphone');
-  console.log(req.body);
   try {
     const phoneNumber = req.body.phone;
-    // console.log(req.body);
-    console.log(phoneNumber);
     await sendOtp(phoneNumber);
     res.status(200).json({message: 'OTP sent successfully'});
   } catch (error) {
@@ -81,7 +71,6 @@ const verifyPhone = async (req, res) => {
 const verifyOtp = async (req, res) => {
   const phone = req.body.phone;
   const otp = req.body.otp;
-  console.log(req.body);
   try {
     const status = verifyOtpFn(phone, otp);
     if (!status == 'approved') {
@@ -98,7 +87,6 @@ const verifyUser = async (req, res) => {
   try {
     const socialMediaLink = req.body.socialMediaLink;
 
-    // Make sure user provided socsial links
     if (!socialMediaLink) {
       throw Object.assign(new Error('Please enter social media link!'), {
         statusCode: 202,
@@ -107,14 +95,12 @@ const verifyUser = async (req, res) => {
 
     const userId = req.tockens.userId;
 
-    // Get user details from db
     const user = await Users.findOne({_id: userId});
 
     if (!user) {
       throw new Error('Failed to get user details with provided id!');
     }
 
-    // Create new user object
     const pendingUser = new PendingUser({
       userId: user._id,
       username: user.username,
@@ -125,10 +111,8 @@ const verifyUser = async (req, res) => {
       deleteStatus: false,
     });
 
-    // Save user
     await pendingUser.save();
 
-    // Send an email to admin to get approuval
     await emailController.requestApproval(user.email);
   } catch (err) {
     console.log(err);
@@ -143,7 +127,7 @@ const verifyUser = async (req, res) => {
 
 const search = async (req, res) => {
   try {
-    const userId=req.tockens.userId;
+    const userId = req.tockens.userId;
     const searchText = req.body.text;
     if (searchText.trim() !== '') {
       const users = await Users.find({
@@ -162,8 +146,6 @@ const search = async (req, res) => {
 };
 
 const followAndUnfollowUser = async (req, res) => {
-  // console.log(req.body.userId);
-  // console.log(req.tockens.userId);
   try {
     const followingId = req.body.userId;
     const userId = req.tockens.userId;
@@ -194,6 +176,36 @@ const followAndUnfollowUser = async (req, res) => {
   }
 };
 
+const getSong = async (req, res) => {
+  try {
+    const userId = req.tockens.userId;
+    const user = await Users.findOne({_id: userId});
+    const username = user.username;
+    const following = user.following;
+
+    if (!following || following.length === 0) {
+      return res.json({message: 'You are not following anyone', username});
+    } else {
+      const aggregatedSongs = await Songs.aggregate([
+        {$match: {userId: {$in: following}}},
+        {
+          $lookup: {
+            from: 'User',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'artist',
+          },
+        },
+      ]);
+
+      return res.json({songs: aggregatedSongs, username});
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({error: 'Internal server error'});
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -202,4 +214,5 @@ module.exports = {
   verifyUser,
   search,
   followAndUnfollowUser,
+  getSong,
 };

@@ -6,6 +6,7 @@ const getUserId = require('../middleware/getUserId');
 const upload = require('../middleware/multer');
 
 router.get('/profile', getUserId, user.getProfile);
+router.get('/getSong', getUserId, user.getSong);
 
 router.put('/profile', upload.single('file'), getUserId, user.updateProfile );
 

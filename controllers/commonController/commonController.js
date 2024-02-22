@@ -25,7 +25,6 @@ const signup = async (req, res) => {
   } else {
     try {
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
-      console.log(otp);
       await emailService.sendOtp(email, otp);
       res.status(200).json({message: 'OTP is successfully sent', otp});
     } catch (error) {
@@ -37,15 +36,11 @@ const signup = async (req, res) => {
 
 const otpVerify = async (req, res) => {
   const {sendedotp, enteredotp} = req.body;
-  // console.log(`serverotp ${sendedotp}  enteredotp ${enteredotp}`);
 
-  // Check if entered OTP matches the generated OTP
   if (String(sendedotp) !== enteredotp) {
-    // console.log('otp verification failed');
     return res.status(400).json({message: 'Invalid OTP', success: false});
   }
   try {
-    // Extract user data from the request body or any other source
     const {
       username,
       email,
@@ -56,9 +51,6 @@ const otpVerify = async (req, res) => {
       dateCreated,
       deleteStatus,
     } = req.body;
-    // console.log('-------------------------------');
-    // console.log(req.body);
-    // console.log('-------------------------------');
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -89,16 +81,10 @@ const otpVerify = async (req, res) => {
   }
 };
 const login = async (req, res) => {
-  console.log('login button clicked');
   try {
     const {usernameOrEmail, password} = req.body;
 
-    console.log('-----------------------------------');
-    console.log(req.body);
-    console.log('-----------------------------------');
-
     if (!usernameOrEmail || !password) {
-      console.log('Enter the fields properly');
       return res.json({message: 'Enter the fields properly'});
     }
 
@@ -106,8 +92,6 @@ const login = async (req, res) => {
       $or: [{email: usernameOrEmail}, {username: usernameOrEmail}],
     });
 
-    console.log(existingUser);
-    console.log('======================');
     if (existingUser) {
       if (!existingUser.deleteStatus) {
         const matchPassword = await bcrypt.compare(
@@ -116,7 +100,6 @@ const login = async (req, res) => {
         );
 
         if (!matchPassword) {
-          console.log('Password did not match');
           return res.json({message: 'Password did not match'});
         }
         const role = existingUser.role;
@@ -126,9 +109,6 @@ const login = async (req, res) => {
             process.env.SECRET_KEY,
             {expiresIn: '1h'},
         );
-        console.log(token);
-
-        console.log('Login successful');
         return res.json({
           success: true,
           message: 'Login successful',
@@ -136,14 +116,11 @@ const login = async (req, res) => {
           role: role,
         });
       } else {
-        console.log('This account has been deleted');
         return res.json({message: 'This account has been deleted'});
       }
     }
-    console.log('No user exists');
     return res.json({message: 'No user exists'});
   } catch (error) {
-    console.error('Error executing findOne:', error);
     return res.status(500).json({error: 'Internal Server Error'});
   }
 };

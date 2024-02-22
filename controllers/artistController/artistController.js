@@ -5,8 +5,6 @@ const Profile = require('../../models/profileSchema');
 
 const addSong = async (req, res) => {
   try {
-    console.log(req.body.data);
-    console.log(req.tockens);
     const userId = req.tockens.userId;
     const {title, artist, album, genre, duration, releaseDate, songFile} =
       req.body.data;
@@ -39,7 +37,6 @@ const addSong = async (req, res) => {
 
 const getSong = async (req, res) => {
   try {
-    console.log('inside getsong ');
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const songs = await Songs.aggregate([{$match: {userId: userId}}]);
     let username;
@@ -59,8 +56,6 @@ const getSong = async (req, res) => {
 
 const deleteSong = async (req, res) => {
   try {
-    console.log('delete clicked');
-    console.log(req.params.id);
     const songId = req.params.id;
     await Songs.findByIdAndDelete(songId);
     res.json({message: 'song deleted succesfully'});
@@ -70,11 +65,8 @@ const deleteSong = async (req, res) => {
   }
 };
 const getProfile = async (req, res) => {
-  console.log('inside getProfile');
   const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-  // console.log(userId);
   const user = await User.findOne({_id: userId});
-  // console.log(user);
   const artistProfile = await User.aggregate([
     {$match: {_id: userId}},
     {
@@ -86,14 +78,12 @@ const getProfile = async (req, res) => {
       },
     },
   ]);
-  console.log(artistProfile[0].profile);
   res.json({artistProfile, user});
 };
 
 const updateProfile = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-    console.log(userId);
     const {username, email, bio, phoneNumber, dateOfBirth, file} =
       req.body.profileDetails;
     const existingUser = await User.findOne({username: username});
@@ -125,11 +115,9 @@ const updateProfile = async (req, res) => {
       res
           .status(200)
           .json({message: 'Profile updated successfully', success: true});
-      console.log('profile updated succesfully');
     }
   } catch (err) {
     res.status(500).json({message: 'Error Updating Profile', success: false});
-    console.log('error updating profile');
     console.log(err);
   }
 };

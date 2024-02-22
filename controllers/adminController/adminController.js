@@ -7,10 +7,8 @@ const emailController = require('../commonController/emailController');
 const getAllUsers = async (req, res) => {
   const user = await Users.find({role: 'user'});
   if (user.length > 0) {
-    console.log('user found');
     res.json({user, success: true});
   } else {
-    console.log('user not found');
     res.json({message: 'No user found', success: false});
   }
 };
@@ -18,10 +16,8 @@ const getAllUsers = async (req, res) => {
 const getAllArtist = async (req, res) => {
   const artist = await Users.find({role: 'artist'});
   if (artist.length > 0) {
-    console.log('artist found');
     res.json({artist, success: true});
   } else {
-    console.log('artist not found');
     res.json({message: 'No artist Found', success: false});
   }
 };
@@ -29,10 +25,8 @@ const getAllArtist = async (req, res) => {
 const getAllPending = async (req, res) => {
   const pending = await PendingUser.find();
   if (pending.length > 0) {
-    console.log('pending found');
     res.json({pending, success: true});
   } else {
-    console.log('pending not found');
     res.json({message: 'No pending User Found', success: false});
   }
 };
@@ -40,10 +34,8 @@ const getAllPending = async (req, res) => {
 const getAllAdmin = async (req, res) => {
   const admin = await Users.find({role: 'admin'});
   if (admin.length > 0) {
-    console.log('admin found');
     res.json({admin, success: true});
   } else {
-    console.log('admin not found');
     res.json({message: 'No Admin Found', success: false});
   }
 };
@@ -58,10 +50,8 @@ const changeDeleteStatus = async (req, res) => {
         {$set: {deleteStatus: newDeleteStatus}},
     );
     if (newDeleteStatus) {
-      console.log('user deleted');
       res.json({message: 'user deleted successfully'});
     } else {
-      console.log('user undeleted');
       res.json({message: 'user undeleted successfully'});
     }
   } catch (err) {
@@ -78,7 +68,6 @@ const approveUser = async (req, res) => {
         {_id: userId},
         {$set: {role: 'artist', isVerified: true}},
     );
-    console.log('User approved successfully');
     await emailController.approveUser(user.email);
     res.status(200).json({message: 'User approved successfully'});
     await PendingUser.deleteOne({userId});
@@ -90,11 +79,8 @@ const approveUser = async (req, res) => {
 const declineUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log(userId);
     const user = await PendingUser.find({userId: userId});
-    console.log(user);
     const userEmail = user[0].email;
-    console.log(userEmail);
     await emailController.declineUser(userEmail);
     await PendingUser.deleteOne({userId});
     res.json({message: 'User Decline and mail send successfully'});
