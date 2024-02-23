@@ -28,12 +28,13 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const {file, bio, phoneNumber, date, gender, username, email} = req.body;
+    const {bio, phoneNumber, date, gender, username, email} = req.body;
+    const fileLoc=req.file.location;
     await Profile.updateOne(
         {userId: req.tockens.userId},
         {
           $set: {
-            imageUrl: file,
+            imageUrl: fileLoc,
             bio,
             phoneNumber,
             dateOfBirth: date,
@@ -197,12 +198,54 @@ const getSong = async (req, res) => {
           },
         },
       ]);
-
       return res.json({songs: aggregatedSongs, username});
     }
   } catch (err) {
     console.error(err);
     return res.status(500).json({error: 'Internal server error'});
+  }
+};
+
+const getSettings = async (req, res) => {
+  try {
+    const userId = req.tockens.userId;
+    const {following, followers} = await Users.findOne({_id: userId});
+    res.json({following, followers});
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const favAndUnfavSong = async (req, res) => {
+  const {songId} = req.body;
+  const userId = req.tockens.userId;
+
+  try {
+    const songExistenceChecker = await Songs.exists({_id: songId});
+    if (!songExistenceChecker) {
+      return res.status(400).json({error: 'This song doesn\'t exist'});
+    }
+
+    const user = await Users.findById(userId);
+    if (!user) {
+      return res.status(404).json({error: 'User not found'});
+    }
+
+    const index = user.favorite.indexOf(songId);
+    if (index !== -1) {
+      user.favorite.splice(index, 1);
+      await user.save();
+      return res.json({message: 'Removed from favorites', fav: false});
+    } else {
+      user.favorite.push(songId);
+      await user.save();
+      return res
+          .status(200)
+          .json({message: 'Song favorited successfully', fav: true});
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({error: 'Internal Server Error'});
   }
 };
 
@@ -215,4 +258,6 @@ module.exports = {
   search,
   followAndUnfollowUser,
   getSong,
+  getSettings,
+  favAndUnfavSong,
 };

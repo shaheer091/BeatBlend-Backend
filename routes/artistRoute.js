@@ -10,7 +10,7 @@ router.get('/profile', userID, artist.getProfile);
 router.post('/addSong', userID, artist.addSong);
 router.patch('/profile', userID, artist.updateProfile);
 
-router.delete('/deleteSong/:id', artist.deleteSong);
+router.delete('/deleteSong/:id', userID, artist.deleteSong);
 
 
 module.exports=router;

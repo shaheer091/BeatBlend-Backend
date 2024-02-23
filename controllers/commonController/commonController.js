@@ -67,7 +67,7 @@ const otpVerify = async (req, res) => {
     });
     await newUser.save();
     const token = jwt.sign({userId: newUser._id}, process.env.SECRET_KEY, {
-      expiresIn: '1h',
+      expiresIn: '1d',
     });
     return res.status(200).json({
       success: true,
@@ -107,7 +107,7 @@ const login = async (req, res) => {
         const token = jwt.sign(
             {userId: existingUser._id},
             process.env.SECRET_KEY,
-            {expiresIn: '1h'},
+            {expiresIn: '1d'},
         );
         return res.json({
           success: true,
