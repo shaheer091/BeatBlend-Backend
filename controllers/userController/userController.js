@@ -29,7 +29,7 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const {bio, phoneNumber, date, gender, username, email} = req.body;
-    const fileLoc=req.file.location;
+    const fileLoc = req.file.location;
     await Profile.updateOne(
         {userId: req.tockens.userId},
         {
@@ -210,7 +210,12 @@ const getSettings = async (req, res) => {
   try {
     const userId = req.tockens.userId;
     const {following, followers} = await Users.findOne({_id: userId});
-    res.json({following, followers});
+    const {imageUrl} = await Profile.findOne({userId: userId});
+    if (imageUrl) {
+      res.json({following, followers, imageUrl});
+    } else {
+      res.json({following, followers});
+    }
   } catch (err) {
     console.log(err);
   }

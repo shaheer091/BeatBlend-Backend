@@ -6,24 +6,33 @@ const Profile = require('../../models/profileSchema');
 const addSong = async (req, res) => {
   try {
     const userId = req.tockens.userId;
-    const {title, artist, album, genre, duration, releaseDate, songFile} =
-      req.body.data;
-    const newSong = new Songs({
-      userId: userId,
-      title,
-      songUrl: songFile,
-      artist,
-      album,
-      genre,
-      duration,
-      releaseDate,
-    });
-    await newSong.save();
-    res.json({
-      message: 'Song Added Succesfully',
-      success: true,
-      description: 'Your song has been uploaded and added to the system.',
-    });
+    console.log(req.body);
+    const {title, artist, album, genre, duration, releaseDate} =
+      req.body;
+    // console.log(req.body.data);
+    console.log(req.file);
+    const songUrl = req.file.location;
+
+    if (!title || !genre || !songUrl) {
+      return res.json({message: 'Enter the required fields'});
+    } else {
+      const newSong = new Songs({
+        userId: userId,
+        title,
+        songUrl: songUrl,
+        artist,
+        album,
+        genre,
+        duration,
+        releaseDate,
+      });
+      await newSong.save();
+      res.json({
+        message: 'Song Added Succesfully',
+        success: true,
+        description: 'Your song has been uploaded and added to the system.',
+      });
+    }
   } catch (err) {
     console.log(err);
     res.json({

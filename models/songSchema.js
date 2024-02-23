@@ -5,11 +5,11 @@ const songSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: true,
+    // required: true,
   },
   songUrl: {
     type: String,
-    required: true,
+    // required: true,
   },
   artist: {
     type: String,
@@ -19,6 +19,7 @@ const songSchema = new mongoose.Schema({
   },
   genre: {
     type: String,
+    // required: true,
   },
   duration: {
     type: Number,
