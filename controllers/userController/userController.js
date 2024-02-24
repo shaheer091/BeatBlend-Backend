@@ -181,8 +181,7 @@ const getSong = async (req, res) => {
   try {
     const userId = req.tockens.userId;
     const user = await Users.findOne({_id: userId});
-    const username = user.username;
-    const following = user.following;
+    const {username, following} = user;
 
     if (!following || following.length === 0) {
       return res.json({message: 'You are not following anyone', username});
@@ -191,12 +190,13 @@ const getSong = async (req, res) => {
         {$match: {userId: {$in: following}}},
         {
           $lookup: {
-            from: 'User',
+            from: 'users',
             localField: 'userId',
             foreignField: '_id',
             as: 'artist',
           },
         },
+
       ]);
       return res.json({songs: aggregatedSongs, username});
     }
@@ -221,6 +221,39 @@ const getSettings = async (req, res) => {
   }
 };
 
+// const favAndUnfavSong = async (req, res) => {
+//   const {songId} = req.body;
+//   const userId = req.tockens.userId;
+
+//   try {
+//     const songExistenceChecker = await Songs.exists({_id: songId});
+//     if (!songExistenceChecker) {
+//       return res.status(400).json({error: 'This song doesn\'t exist'});
+//     }
+
+//     const user = await Users.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({error: 'User not found'});
+//     }
+
+//     const index = user.favorite.indexOf(songId);
+//     if (index !== -1) {
+//       user.favorite.splice(index, 1);
+//       await user.save();
+//       return res.json({message: 'Removed from favorites', fav: false});
+//     } else {
+//       user.favorite.push(songId);
+//       await user.save();
+//       return res
+//           .status(200)
+//           .json({message: 'Song favorited successfully', fav: true});
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({error: 'Internal Server Error'});
+//   }
+// };
+
 const favAndUnfavSong = async (req, res) => {
   const {songId} = req.body;
   const userId = req.tockens.userId;
@@ -240,19 +273,18 @@ const favAndUnfavSong = async (req, res) => {
     if (index !== -1) {
       user.favorite.splice(index, 1);
       await user.save();
-      return res.json({message: 'Removed from favorites', fav: false});
+      return res.json({message: 'Song removed from favorites'});
     } else {
       user.favorite.push(songId);
       await user.save();
-      return res
-          .status(200)
-          .json({message: 'Song favorited successfully', fav: true});
+      return res.json({message: 'Song added to favorites'});
     }
   } catch (error) {
     console.error(error);
     return res.status(500).json({error: 'Internal Server Error'});
   }
 };
+
 
 module.exports = {
   getProfile,

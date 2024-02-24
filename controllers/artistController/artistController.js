@@ -6,13 +6,9 @@ const Profile = require('../../models/profileSchema');
 const addSong = async (req, res) => {
   try {
     const userId = req.tockens.userId;
-    console.log(req.body);
     const {title, artist, album, genre, duration, releaseDate} =
       req.body;
-    // console.log(req.body.data);
-    console.log(req.file);
     const songUrl = req.file.location;
-
     if (!title || !genre || !songUrl) {
       return res.json({message: 'Enter the required fields'});
     } else {
@@ -73,6 +69,7 @@ const deleteSong = async (req, res) => {
     res.json({err});
   }
 };
+
 const getProfile = async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.tockens.userId);
   const user = await User.findOne({_id: userId});
