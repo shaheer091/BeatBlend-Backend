@@ -6,8 +6,7 @@ const Profile = require('../../models/profileSchema');
 const addSong = async (req, res) => {
   try {
     const userId = req.tockens.userId;
-    const {title, artist, album, genre, duration, releaseDate} =
-      req.body;
+    const {title, artist, album, genre, duration, releaseDate} = req.body;
     const songUrl = req.file.location;
     if (!title || !genre || !songUrl) {
       return res.json({message: 'Enter the required fields'});
@@ -62,13 +61,27 @@ const getSong = async (req, res) => {
 const deleteSong = async (req, res) => {
   try {
     const songId = req.params.id;
-    await Songs.findByIdAndDelete(songId);
-    res.json({message: 'song deleted succesfully'});
+    const song = await Songs.findById(songId);
+
+    if (!song) {
+      return res.status(404).json({error: 'Song not found'});
+    }
+
+    // Toggle the deleteStatus field
+    song.deleteStatus = !song.deleteStatus;
+    await song.save();
+
+    if (song.deleteStatus) {
+      res.json({message: 'Song deleted successfully'});
+    } else {
+      res.json({message: 'Song undeleted successfully'});
+    }
   } catch (err) {
-    console.log(err);
-    res.json({err});
+    console.error(err);
+    res.status(500).json({error: 'Internal Server Error'});
   }
 };
+
 
 const getProfile = async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.tockens.userId);
