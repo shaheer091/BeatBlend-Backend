@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const songSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Types.ObjectId,
+    ref: 'User',
   },
   title: {
     type: String,

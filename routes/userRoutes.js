@@ -8,6 +8,7 @@ const upload = require('../middleware/multer');
 router.get('/profile', getUserId, user.getProfile);
 router.get('/getSong', getUserId, user.getSong);
 router.get('/settings', getUserId, user.getSettings);
+router.get('/favorite', getUserId, user.getFavSongs);
 
 router.put('/profile', getUserId, upload.single('file'), user.updateProfile );
 

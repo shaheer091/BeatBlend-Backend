@@ -187,10 +187,12 @@ const getSong = async (req, res) => {
       return res.json({message: 'You are not following anyone', username});
     } else {
       const aggregatedSongs = await Songs.aggregate([
-        {$match: {
-          userId: {$in: following},
-          deleteStatus: false,
-        }},
+        {
+          $match: {
+            userId: {$in: following},
+            deleteStatus: false,
+          },
+        },
         {
           $lookup: {
             from: 'users',
@@ -199,7 +201,6 @@ const getSong = async (req, res) => {
             as: 'artist',
           },
         },
-
       ]);
       return res.json({songs: aggregatedSongs, username});
     }
@@ -257,6 +258,23 @@ const favAndUnfavSong = async (req, res) => {
   }
 };
 
+const getFavSongs = async (req, res) => {
+  try {
+    const userId = req.tockens.userId;
+    const user = await Users.findOne({_id: userId});
+    const favSongIds = user.favorite;
+    const favSongs = await Songs.find({_id: {$in: favSongIds}}).populate(
+        'userId',
+        'username',
+    );
+
+    return res.json({favSongs});
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({error: 'Internal server error'});
+  }
+};
+
 // const favAndUnfavSong = async (req, res) => {
 //   const {songId} = req.body;
 //   const userId = req.tockens.userId;
@@ -288,7 +306,6 @@ const favAndUnfavSong = async (req, res) => {
 //   }
 // };
 
-
 module.exports = {
   getProfile,
   updateProfile,
@@ -300,4 +317,5 @@ module.exports = {
   getSong,
   getSettings,
   favAndUnfavSong,
+  getFavSongs,
 };
