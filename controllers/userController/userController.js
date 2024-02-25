@@ -263,6 +263,9 @@ const getFavSongs = async (req, res) => {
     const userId = req.tockens.userId;
     const user = await Users.findOne({_id: userId});
     const favSongIds = user.favorite;
+    if (favSongIds.length === 0) {
+      return res.json({message: 'You havenot favorited anything'});
+    }
     const favSongs = await Songs.find({_id: {$in: favSongIds}}).populate(
         'userId',
         'username',
