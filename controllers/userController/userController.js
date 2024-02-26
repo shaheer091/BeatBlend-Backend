@@ -130,7 +130,7 @@ const search = async (req, res) => {
   try {
     const userId = req.tockens.userId;
     const searchText = req.body.text;
-    if (searchText.trim() !== '') {
+    if (searchText !== '') {
       const users = await Users.find({
         _id: {$ne: userId},
         username: {$regex: searchText, $options: 'i'},
@@ -139,7 +139,7 @@ const search = async (req, res) => {
       });
       res.status(200).json({users, userId});
     } else {
-      res.status(404).json({message: 'No User Found'});
+      res.status(404).json({message: 'No User Found', users: []});
     }
   } catch (err) {
     console.log(err);
@@ -278,36 +278,6 @@ const getFavSongs = async (req, res) => {
   }
 };
 
-// const favAndUnfavSong = async (req, res) => {
-//   const {songId} = req.body;
-//   const userId = req.tockens.userId;
-
-//   try {
-//     const songExistenceChecker = await Songs.exists({_id: songId});
-//     if (!songExistenceChecker) {
-//       return res.status(400).json({error: 'This song doesn\'t exist'});
-//     }
-
-//     const user = await Users.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({error: 'User not found'});
-//     }
-
-//     const index = user.favorite.indexOf(songId);
-//     if (index !== -1) {
-//       user.favorite.splice(index, 1);
-//       await user.save();
-//       return res.json({message: 'Song removed from favorites'});
-//     } else {
-//       user.favorite.push(songId);
-//       await user.save();
-//       return res.json({message: 'Song added to favorites'});
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({error: 'Internal Server Error'});
-//   }
-// };
 
 module.exports = {
   getProfile,

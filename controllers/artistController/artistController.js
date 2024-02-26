@@ -11,6 +11,10 @@ const addSong = async (req, res) => {
     if (!title || !genre || !songUrl) {
       return res.json({message: 'Enter the required fields'});
     } else {
+      const defaultReleaseDate = releaseDate ?
+        releaseDate :
+        new Date().toISOString();
+
       const newSong = new Songs({
         userId: userId,
         title,
@@ -19,7 +23,7 @@ const addSong = async (req, res) => {
         album,
         genre,
         duration,
-        releaseDate,
+        releaseDate: defaultReleaseDate,
       });
       await newSong.save();
       res.json({
@@ -81,7 +85,6 @@ const deleteSong = async (req, res) => {
     res.status(500).json({error: 'Internal Server Error'});
   }
 };
-
 
 const getProfile = async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.tockens.userId);
