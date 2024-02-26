@@ -1,5 +1,5 @@
-const mongoose=require('mongoose');
-const userSchema=new mongoose.Schema({
+const mongoose = require('mongoose');
+const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
@@ -27,6 +27,15 @@ const userSchema=new mongoose.Schema({
     required: true,
     default: false,
   },
+  following: {
+    type: [mongoose.Types.ObjectId],
+  },
+  followers: {
+    type: [mongoose.Types.ObjectId],
+  },
+  favorite: {
+    type: [mongoose.Types.ObjectId],
+  },
   dateCreated: {
     type: Date,
     required: true,
@@ -39,6 +48,6 @@ const userSchema=new mongoose.Schema({
   },
 });
 
-const user=mongoose.model('User', userSchema);
+const user = mongoose.model('User', userSchema);
 
-module.exports=user;
+module.exports = user;
