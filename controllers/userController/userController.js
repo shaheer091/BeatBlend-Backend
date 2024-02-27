@@ -29,7 +29,7 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const {bio, phoneNumber, date, gender, username, email} = req.body;
-    const fileLoc = req.file.location;
+    const fileLoc = req.file?.location;
     await Profile.updateOne(
         {userId: req.tockens.userId},
         {

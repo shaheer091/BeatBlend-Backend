@@ -9,6 +9,7 @@ router.get('/seeAllPending', admin.getAllPending);
 router.get('/seeAllAdmin', admin.getAllAdmin);
 
 router.patch('/changeDeleteStatus', admin.changeDeleteStatus);
+router.patch('/changeBlockStatus', admin.changeBlockStatus);
 router.patch('/approveUser', admin.approveUser);
 
 router.delete('/declineUser/:id', admin.declineUser);

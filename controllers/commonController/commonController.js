@@ -43,16 +43,7 @@ const otpVerify = async (req, res) => {
     return res.status(400).json({message: 'Invalid OTP', success: false});
   }
   try {
-    const {
-      username,
-      email,
-      password,
-      role,
-      isVerified,
-      isPremium,
-      dateCreated,
-      deleteStatus,
-    } = req.body;
+    const {username, email, password} = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -61,11 +52,12 @@ const otpVerify = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      role,
-      isVerified,
-      isPremium,
-      dateCreated,
-      deleteStatus,
+      role: 'user',
+      isVerified: false,
+      isPremium: false,
+      dateCreated: new Date(),
+      deleteStatus: false,
+      isBlocked: false,
     });
     await newUser.save();
     const token = jwt.sign({userId: newUser._id}, process.env.SECRET_KEY, {
@@ -97,6 +89,11 @@ const login = async (req, res) => {
 
     if (existingUser) {
       if (!existingUser.deleteStatus) {
+        if (existingUser.isBlocked) {
+          return res.json({
+            message: 'This account has been blocked by the admin',
+          });
+        }
         const matchPassword = await bcrypt.compare(
             password,
             existingUser.password,
