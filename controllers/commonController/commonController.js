@@ -1,5 +1,7 @@
+/* eslint-disable new-cap */
 const Users = require('../../models/userSchema');
 // const PendingUser = require('../../models/pendingUserSchema');
+const mongoose = require('mongoose');
 const emailService = require('./emailController');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -80,6 +82,7 @@ const otpVerify = async (req, res) => {
     return res.status(500).json({error: 'Internal Server error'});
   }
 };
+
 const login = async (req, res) => {
   try {
     const {usernameOrEmail, password} = req.body;
@@ -125,8 +128,41 @@ const login = async (req, res) => {
   }
 };
 
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.params.id);
+    const user = await Users.aggregate([
+      {$match: {_id: userId}},
+      {
+        $lookup: {
+          from: 'userprofiles',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'profile',
+        },
+      },
+      {
+        $lookup: {
+          from: 'songs',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'songs',
+        },
+      },
+    ]);
+    if (!user) {
+      return res.json({message: 'No User Found'});
+    } else {
+      res.json(user);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   signup,
   otpVerify,
   login,
+  getUserProfile,
 };

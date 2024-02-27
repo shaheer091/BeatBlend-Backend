@@ -8,4 +8,5 @@ router.post('/signup', common.signup);
 router.post('/otp-verify', common.otpVerify);
 router.post('/login', common.login);
 
+router.get('/user-profile/:id', common.getUserProfile);
 module.exports = router;
