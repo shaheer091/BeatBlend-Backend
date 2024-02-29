@@ -129,7 +129,8 @@ const verifyUser = async (req, res) => {
 const search = async (req, res) => {
   try {
     const userId = req.tockens.userId;
-    const searchText = req.body.text;
+    const searchText = req.params.text;
+    console.log(searchText);
     if (searchText !== '') {
       const users = await Users.find({
         _id: {$ne: userId},
@@ -137,7 +138,11 @@ const search = async (req, res) => {
         role: {$in: ['user', 'artist']},
         deleteStatus: false,
       });
-      res.status(200).json({users, userId});
+      if (users) {
+        res.status(200).json({users, userId});
+      } else {
+        res.json({message: 'No users Found'});
+      }
     } else {
       res.status(404).json({message: 'No User Found', users: []});
     }
@@ -214,7 +219,12 @@ const getSettings = async (req, res) => {
   try {
     const userId = req.tockens.userId;
     const {following, followers} = await Users.findOne({_id: userId});
-    const {imageUrl} = await Profile.findOne({userId: userId});
+    const profile = await Profile.findOne({userId: userId});
+    let imageUrl;
+    if (profile) {
+      imageUrl = profile.imageUrl;
+    }
+
     if (imageUrl) {
       res.json({following, followers, imageUrl});
     } else {
@@ -222,6 +232,7 @@ const getSettings = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
+    res.status(500).json({error: 'Internal server error'});
   }
 };
 
@@ -278,6 +289,39 @@ const getFavSongs = async (req, res) => {
   }
 };
 
+const searchSong = async (req, res) => {
+  try {
+    const searchText = req.params.searchText;
+    const songs = await Songs.find({
+      title: {$regex: searchText, $options: 'i'},
+    });
+    if (searchText != '') {
+      if (!songs || songs.length == 0) {
+        return res.json({songs: []});
+      } else {
+        return res.json({songs});
+      }
+    } else {
+      res.json({songs: []});
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Internal server error'});
+  }
+};
+
+const addToPlaylist = async (req, res) =>{
+  try {
+    console.log(req.tockens.userId);
+    console.log(req.body.songId);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const createPlaylist = async (req, res) => {
+
+};
 
 module.exports = {
   getProfile,
@@ -291,4 +335,7 @@ module.exports = {
   getSettings,
   favAndUnfavSong,
   getFavSongs,
+  createPlaylist,
+  searchSong,
+  addToPlaylist,
 };
