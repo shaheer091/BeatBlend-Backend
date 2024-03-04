@@ -2,6 +2,7 @@ const Users = require('../../models/userSchema');
 const Profile = require('../../models/profileSchema');
 const PendingUser = require('../../models/pendingUserSchema');
 const Songs = require('../../models/songSchema');
+const Playlist = require('../../models/playlistSchema');
 const mongoose = require('mongoose');
 const sendOtp = require('../../utility/sendOtp');
 const verifyOtpFn = require('../../utility/verifyOtp');
@@ -294,7 +295,7 @@ const searchSong = async (req, res) => {
     const searchText = req.params.searchText;
     const songs = await Songs.find({
       title: {$regex: searchText, $options: 'i'},
-    });
+    }).populate('userId', 'username');
     if (searchText != '') {
       if (!songs || songs.length == 0) {
         return res.json({songs: []});
@@ -310,17 +311,45 @@ const searchSong = async (req, res) => {
   }
 };
 
-const addToPlaylist = async (req, res) =>{
+const createPlaylist = async (req, res) => {
   try {
-    console.log(req.tockens.userId);
-    console.log(req.body.songId);
+    console.log(req.file);
+    const {songIds, playlistName} = req.body;
+    if (req.file) {
+      playlistImage = req.file.location;
+    }
+    const newPlaylist = new Playlist({
+      userId: req.tockens.userId,
+      songId: songIds,
+      playlistName,
+      imageUrl: req?.file?.location,
+    });
+
+    try {
+      await newPlaylist.save();
+      console.log('Playlist created');
+      res.status(200).json({message: 'Playlist created successfully'});
+    } catch (error) {
+      console.error('Error creating playlist:', error);
+      res.status(500).json({error: 'Internal server error'});
+    }
   } catch (err) {
     console.log(err);
   }
 };
 
-const createPlaylist = async (req, res) => {
-
+const getPlaylist = async (req, res) => {
+  try {
+    const userId = req.tockens.userId;
+    const playlist = await Playlist.find({userId});
+    if (!playlist) {
+      return res.json({message: 'No playlist Found'});
+    } else {
+      res.json(playlist);
+    }
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 module.exports = {
@@ -337,5 +366,5 @@ module.exports = {
   getFavSongs,
   createPlaylist,
   searchSong,
-  addToPlaylist,
+  getPlaylist,
 };

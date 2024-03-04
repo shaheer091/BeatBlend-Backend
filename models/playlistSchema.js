@@ -4,7 +4,7 @@ const playlistSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Types.ObjectId,
   },
-  title: {
+  playlistName: {
     type: String,
     required: true,
   },
