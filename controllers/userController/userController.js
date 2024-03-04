@@ -352,6 +352,35 @@ const getPlaylist = async (req, res) => {
   }
 };
 
+const getSinglePlaylist = async (req, res) => {
+  try {
+    const playlistId = new mongoose.Types.ObjectId(req.params.id);
+    // const playlist = await Playlist.find({_id: playlistId});
+    const playlist = await Playlist.aggregate([
+      {$match: {_id: playlistId}},
+      {
+        $lookup: {
+          from: 'songs',
+          localField: 'songId',
+          foreignField: '_id',
+          as: 'songs',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'songs.userId',
+          foreignField: '_id',
+          as: 'artists',
+        },
+      },
+    ]);
+    res.json(playlist);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -367,4 +396,5 @@ module.exports = {
   createPlaylist,
   searchSong,
   getPlaylist,
+  getSinglePlaylist,
 };
