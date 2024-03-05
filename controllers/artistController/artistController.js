@@ -148,7 +148,6 @@ const getSongDetails = async (req, res) => {
   try {
     const songId = new mongoose.Types.ObjectId(req.params.id);
     const song = await Songs.findOne({_id: songId});
-    console.log(song);
     res.json(song);
   } catch (err) {
     console.log(err);
@@ -159,7 +158,6 @@ const editSongDetails = async (req, res) => {
   try {
     const songId = new mongoose.Types.ObjectId(req.params.id);
     const {title, artist, album, genre, duration} = req.body;
-    console.log(req.body);
     await Songs.updateOne(
         {_id: songId},
         {

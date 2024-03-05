@@ -131,7 +131,6 @@ const search = async (req, res) => {
   try {
     const userId = req.tockens.userId;
     const searchText = req.params.text;
-    console.log(searchText);
     if (searchText !== '') {
       const users = await Users.find({
         _id: {$ne: userId},
@@ -313,7 +312,6 @@ const searchSong = async (req, res) => {
 
 const createPlaylist = async (req, res) => {
   try {
-    console.log(req.file);
     const {songIds, playlistName} = req.body;
     if (req.file) {
       playlistImage = req.file.location;
@@ -327,7 +325,6 @@ const createPlaylist = async (req, res) => {
 
     try {
       await newPlaylist.save();
-      console.log('Playlist created');
       res.status(200).json({message: 'Playlist created successfully'});
     } catch (error) {
       console.error('Error creating playlist:', error);
@@ -386,10 +383,9 @@ const removeFromPlaylist = async (req, res) => {
   const songId = new mongoose.Types.ObjectId(req.params.id);
 
   try {
-    const result = await Playlist.updateOne(
+    await Playlist.updateOne(
         {userId: userId},
         {$pull: {songId: songId}});
-    console.log(result);
     res.status(200)
         .json({message: 'Song removed from playlist successfully'});
   } catch (error) {
