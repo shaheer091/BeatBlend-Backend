@@ -157,9 +157,42 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+const getFollowingList = async (req, res) => {
+  try {
+    const userId = req.tockens.userId;
+    const currentUser = await Users.findById(userId);
+    const followingUsers = await Users.find({
+      _id: {$in: currentUser.following},
+    });
+    return res.status(200).json(followingUsers);
+  } catch (error) {
+    console.error('Error getting following list:', error);
+    return res.status(500).json({message: 'Internal server error'});
+  }
+};
+
+const getFollowersList = async (req, res) => {
+  try {
+    const userId = req.tockens.userId;
+    const currentUser = await Users.findById(userId);
+    if (!currentUser) {
+      return res.status(404).json({message: 'User not found'});
+    }
+    const followersList = await Users.find({
+      _id: {$in: currentUser.followers},
+    });
+    return res.status(200).json(followersList);
+  } catch (error) {
+    console.error('Error getting followers list:', error);
+    return res.status(500).json({message: 'Internal server error'});
+  }
+};
+
 module.exports = {
   signup,
   otpVerify,
   login,
   getUserProfile,
+  getFollowingList,
+  getFollowersList,
 };
