@@ -29,4 +29,7 @@ router.post(
     user.createPlaylist,
 );
 
+router.delete('/removeFromPlaylist/:id', getUserId, user.removeFromPlaylist);
+router.delete('/deletePlaylist/:id', getUserId, user.deletePlaylist);
+
 module.exports = router;

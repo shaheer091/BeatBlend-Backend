@@ -381,6 +381,40 @@ const getSinglePlaylist = async (req, res) => {
   }
 };
 
+const removeFromPlaylist = async (req, res) => {
+  const userId = req.tockens.userId;
+  const songId = new mongoose.Types.ObjectId(req.params.id);
+
+  try {
+    const result = await Playlist.updateOne(
+        {userId: userId},
+        {$pull: {songId: songId}});
+    console.log(result);
+    res.status(200)
+        .json({message: 'Song removed from playlist successfully'});
+  } catch (error) {
+    console.error('Error removing song from playlist:', error);
+    res.status(500).json({error: 'Internal server error'});
+  }
+};
+
+const deletePlaylist = async (req, res) => {
+  const playlistId = new mongoose.Types.ObjectId(req.params.id);
+
+  try {
+    const result = await Playlist.deleteOne({_id: playlistId});
+    if (result.deletedCount === 1) {
+      res.status(200).json({message: 'Playlist deleted successfully'});
+    } else {
+      res.status(404).json({error: 'Playlist not found'});
+    }
+  } catch (error) {
+    console.error('Error deleting playlist:', error);
+    res.status(500).json({error: 'Internal server error'});
+  }
+};
+
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -397,4 +431,6 @@ module.exports = {
   searchSong,
   getPlaylist,
   getSinglePlaylist,
+  removeFromPlaylist,
+  deletePlaylist,
 };
