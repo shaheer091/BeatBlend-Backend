@@ -1,8 +1,8 @@
-const Users = require('../../models/userSchema');
-// const Profile = require('../../models/profileSchema');
-const PendingUser = require('../../models/pendingUserSchema');
+const Users = require('../models/userSchema');
+// const Profile = require('../models/profileSchema');
+const PendingUser = require('../models/pendingUserSchema');
 // const mongoose = require('mongoose');
-const emailController = require('../commonController/emailController');
+const emailController = require('../utility/emailController');
 
 const getAllUsers = async (req, res) => {
   const user = await Users.find({role: 'user'});

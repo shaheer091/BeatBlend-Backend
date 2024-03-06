@@ -1,8 +1,8 @@
 /* eslint-disable new-cap */
-const Users = require('../../models/userSchema');
+const Users = require('../models/userSchema');
 // const PendingUser = require('../../models/pendingUserSchema');
 const mongoose = require('mongoose');
-const emailService = require('./emailController');
+const emailService = require('../utility/emailController');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 

@@ -8,7 +8,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// eslint-disable-next-line require-jsdoc
 const sendOtp = async function(email, otp) {
   const mailOption = {
     from: process.env.EMAIL,

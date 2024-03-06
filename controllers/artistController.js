@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Songs = require('../../models/songSchema');
-const User = require('../../models/userSchema');
-const Profile = require('../../models/profileSchema');
+const Songs = require('../models/songSchema');
+const User = require('../models/userSchema');
+const Profile = require('../models/profileSchema');
 
 const addSong = async (req, res) => {
   try {
@@ -176,6 +176,26 @@ const editSongDetails = async (req, res) => {
   }
 };
 
+const getHome = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    const artist = await User.aggregate([
+      {$match: {_id: userId}},
+      {
+        $lookup: {
+          from: 'songs',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'songs',
+        },
+      },
+    ]);
+    res.json(artist);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   addSong,
   getSong,
@@ -184,4 +204,5 @@ module.exports = {
   updateProfile,
   getSongDetails,
   editSongDetails,
+  getHome,
 };

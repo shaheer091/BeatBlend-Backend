@@ -1,7 +1,7 @@
 const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
-const user = require('../controllers/userController/userController');
+const user = require('../controllers/userController');
 const getUserId = require('../middleware/getUserId');
 const upload = require('../middleware/multer');
 
@@ -13,6 +13,7 @@ router.get('/search/:text', getUserId, user.search);
 router.get('/searchSong/:searchText', getUserId, user.searchSong);
 router.get('/getPlaylist', getUserId, user.getPlaylist);
 router.get('/singlePlaylist/:id', getUserId, user.getSinglePlaylist);
+router.get('/searchArtist/:searchText', getUserId, user.getArtist);
 
 router.put('/profile', getUserId, upload.single('file'), user.updateProfile);
 

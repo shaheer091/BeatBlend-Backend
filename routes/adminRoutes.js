@@ -1,7 +1,7 @@
 const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
-const admin = require('../controllers/adminController/adminController');
+const admin = require('../controllers/adminController');
 
 router.get('/seeAllUsers', admin.getAllUsers);
 router.get('/seeAllArtist', admin.getAllArtist);

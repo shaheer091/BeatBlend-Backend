@@ -1,12 +1,12 @@
-const Users = require('../../models/userSchema');
-const Profile = require('../../models/profileSchema');
-const PendingUser = require('../../models/pendingUserSchema');
-const Songs = require('../../models/songSchema');
-const Playlist = require('../../models/playlistSchema');
+const Users = require('../models/userSchema');
+const Profile = require('../models/profileSchema');
+const PendingUser = require('../models/pendingUserSchema');
+const Songs = require('../models/songSchema');
+const Playlist = require('../models/playlistSchema');
 const mongoose = require('mongoose');
-const sendOtp = require('../../utility/sendOtp');
-const verifyOtpFn = require('../../utility/verifyOtp');
-const emailController = require('../commonController/emailController');
+const sendOtp = require('../utility/sendOtp');
+const verifyOtpFn = require('../utility/verifyOtp');
+const emailController = require('../utility/emailController');
 
 const getProfile = async (req, res) => {
   try {
@@ -167,6 +167,7 @@ const followAndUnfollowUser = async (req, res) => {
           {_id: followingId},
           {$pull: {followers: userId}},
       );
+      res.json({message: 'user unfollowed successfully'});
     } else {
       await Users.updateOne(
           {_id: userId},
@@ -176,6 +177,7 @@ const followAndUnfollowUser = async (req, res) => {
           {_id: followingId},
           {$push: {followers: userId}},
       );
+      res.json({message: 'user followed successfully'});
     }
   } catch (err) {
     console.log(err);
@@ -277,10 +279,10 @@ const getFavSongs = async (req, res) => {
     if (favSongIds.length === 0) {
       return res.json({message: 'You havenot favorited anything'});
     }
-    const favSongs = await Songs.find({_id: {$in: favSongIds}}).populate(
-        'userId',
-        'username',
-    );
+    const favSongs = await Songs.find({
+      _id: {$in: favSongIds},
+      deleteStatus: false,
+    }).populate('userId', 'username');
 
     return res.json({favSongs});
   } catch (err) {
@@ -294,6 +296,7 @@ const searchSong = async (req, res) => {
     const searchText = req.params.searchText;
     const songs = await Songs.find({
       title: {$regex: searchText, $options: 'i'},
+      deleteStatus: false,
     }).populate('userId', 'username');
     if (searchText != '') {
       if (!songs || songs.length == 0) {
@@ -352,7 +355,6 @@ const getPlaylist = async (req, res) => {
 const getSinglePlaylist = async (req, res) => {
   try {
     const playlistId = new mongoose.Types.ObjectId(req.params.id);
-    // const playlist = await Playlist.find({_id: playlistId});
     const playlist = await Playlist.aggregate([
       {$match: {_id: playlistId}},
       {
@@ -364,14 +366,24 @@ const getSinglePlaylist = async (req, res) => {
         },
       },
       {
+        $unwind: '$songs',
+      },
+      {
         $lookup: {
           from: 'users',
           localField: 'songs.userId',
           foreignField: '_id',
-          as: 'artists',
+          as: 'songs.artists',
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          songs: {$push: '$songs'},
         },
       },
     ]);
+
     res.json(playlist);
   } catch (err) {
     console.log(err);
@@ -383,10 +395,9 @@ const removeFromPlaylist = async (req, res) => {
   const songId = new mongoose.Types.ObjectId(req.params.id);
 
   try {
-    await Playlist.updateOne(
-        {userId: userId},
-        {$pull: {songId: songId}});
-    res.status(200)
+    await Playlist.updateOne({userId: userId}, {$pull: {songId: songId}});
+    res
+        .status(200)
         .json({message: 'Song removed from playlist successfully'});
   } catch (error) {
     console.error('Error removing song from playlist:', error);
@@ -410,6 +421,27 @@ const deletePlaylist = async (req, res) => {
   }
 };
 
+const getArtist = async (req, res) => {
+  try {
+    const userId= new mongoose.Types.ObjectId(req.tockens.userId);
+    const artistName = req.params.searchText;
+    const artists = await Users.find({
+      _id: {$ne: userId},
+      username: {$regex: artistName, $options: 'i'},
+      deleteStatus: false,
+      role: 'artist',
+    });
+
+    if (artists && artists.length > 0) {
+      return res.json({artists});
+    } else {
+      return res.json({artists: []});
+    }
+  } catch (error) {
+    console.error('Error while fetching artists:', error);
+    return res.status(500).json({error: 'Internal server error'});
+  }
+};
 
 module.exports = {
   getProfile,
@@ -429,4 +461,5 @@ module.exports = {
   getSinglePlaylist,
   removeFromPlaylist,
   deletePlaylist,
+  getArtist,
 };
