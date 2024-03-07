@@ -13,7 +13,6 @@ router.get('/search/:text', getUserId, user.search);
 router.get('/searchSong/:searchText', getUserId, user.searchSong);
 router.get('/getPlaylist', getUserId, user.getPlaylist);
 router.get('/singlePlaylist/:id', getUserId, user.getSinglePlaylist);
-router.get('/searchArtist/:searchText', getUserId, user.getArtist);
 
 router.put('/profile', getUserId, upload.single('file'), user.updateProfile);
 
@@ -22,7 +21,6 @@ router.post('/verifyOtp', getUserId, user.verifyOtp);
 router.post('/artistVerify', getUserId, user.verifyUser);
 router.post('/follow', getUserId, user.followAndUnfollowUser);
 router.post('/favUnfav', getUserId, user.favAndUnfavSong);
-// router.post('/addToPlayList', getUserId, user.addToPlaylist);
 router.post(
     '/createPlaylist',
     getUserId,

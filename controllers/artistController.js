@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Songs = require('../models/songSchema');
 const User = require('../models/userSchema');
 const Profile = require('../models/profileSchema');
+const Band = require('../models/bandSchema');
 
 const addSong = async (req, res) => {
   try {
@@ -196,6 +197,51 @@ const getHome = async (req, res) => {
   }
 };
 
+const getArtist = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    const artistName = req.params.searchText;
+    const artists = await User.find({
+      _id: {$ne: userId},
+      username: {$regex: artistName, $options: 'i'},
+      deleteStatus: false,
+      role: 'artist',
+      isVerified: true,
+    });
+
+    if (artists && artists.length > 0) {
+      return res.json({artists});
+    } else {
+      return res.json({artists: []});
+    }
+  } catch (error) {
+    console.error('Error while fetching artists:', error);
+    return res.status(500).json({error: 'Internal server error'});
+  }
+};
+
+const createBand = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    const file = req?.file?.location;
+    console.log(req.body);
+    const {bandName, artistid} = req.body;
+
+    const newBand = new Band({
+      bandName,
+      bandAdmin: userId,
+      requestedMembers: [...artistid],
+      bandImage: file,
+    });
+    await newBand.save();
+    res.json({
+      message: 'request send to the artist. wait for their confirmation',
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   addSong,
   getSong,
@@ -205,4 +251,6 @@ module.exports = {
   getSongDetails,
   editSongDetails,
   getHome,
+  getArtist,
+  createBand,
 };

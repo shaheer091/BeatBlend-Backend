@@ -421,28 +421,6 @@ const deletePlaylist = async (req, res) => {
   }
 };
 
-const getArtist = async (req, res) => {
-  try {
-    const userId= new mongoose.Types.ObjectId(req.tockens.userId);
-    const artistName = req.params.searchText;
-    const artists = await Users.find({
-      _id: {$ne: userId},
-      username: {$regex: artistName, $options: 'i'},
-      deleteStatus: false,
-      role: 'artist',
-    });
-
-    if (artists && artists.length > 0) {
-      return res.json({artists});
-    } else {
-      return res.json({artists: []});
-    }
-  } catch (error) {
-    console.error('Error while fetching artists:', error);
-    return res.status(500).json({error: 'Internal server error'});
-  }
-};
-
 module.exports = {
   getProfile,
   updateProfile,
@@ -461,5 +439,4 @@ module.exports = {
   getSinglePlaylist,
   removeFromPlaylist,
   deletePlaylist,
-  getArtist,
 };
