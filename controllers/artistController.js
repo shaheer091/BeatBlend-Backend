@@ -3,6 +3,7 @@ const Songs = require('../models/songSchema');
 const User = require('../models/userSchema');
 const Profile = require('../models/profileSchema');
 const Band = require('../models/bandSchema');
+const emailSending = require('../utility/emailController');
 
 const addSong = async (req, res) => {
   try {
@@ -227,20 +228,31 @@ const createBand = async (req, res) => {
     console.log(req.body);
     const {bandName, artistid} = req.body;
 
-    const newBand = new Band({
-      bandName,
-      bandAdmin: userId,
-      requestedMembers: [...artistid],
-      bandImage: file,
-    });
-    await newBand.save();
+    // Loop through each artistid
+    for (const id of artistid) {
+      const newBand = new Band({
+        bandName,
+        bandAdmin: userId,
+        requestedMembers: [id],
+        bandImage: file,
+      });
+      await newBand.save();
+      const user = await User.findById(id);
+      await emailSending.requestBandJoin(user.email);
+      if (user) {
+        console.log(`Request sent to user with id ${id}`);
+      } else {
+        console.log(`User with id ${id} not found`);
+      }
+    }
     res.json({
-      message: 'request send to the artist. wait for their confirmation',
+      message: 'Requests sent to the artists. Wait for their confirmation',
     });
   } catch (err) {
     console.log(err);
   }
 };
+
 
 module.exports = {
   addSong,

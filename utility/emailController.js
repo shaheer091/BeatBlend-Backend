@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
@@ -68,10 +69,25 @@ const declineUser = async function(email) {
   }
 };
 
+const requestBandJoin = async function(email) {
+  try {
+    const mailOption = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Invitation to Join Band',
+      html: `<p>Dear artist,</p><p>You have been invited to join a band by the band admin. Please follow the <a href="http://localhost:4200/artist/notification">link</a> provided to accept the invitation and join the band.</p><p>Best regards,<br>The Band Team</p>`,
+    };
+    await transporter.sendMail(mailOption);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 
 module.exports = {
   sendOtp,
   approveUser,
   requestApproval,
   declineUser,
+  requestBandJoin,
 };
