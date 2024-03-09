@@ -11,4 +11,5 @@ router.post('/login', common.login);
 router.get('/user-profile/:id', common.getUserProfile);
 router.get('/following-list', getUserId, common.getFollowingList);
 router.get('/followers-list', getUserId, common.getFollowersList);
+router.get('/notifications', getUserId, common.getNotifications);
 module.exports = router;

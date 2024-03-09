@@ -21,6 +21,7 @@ router.post(
 
 router.patch('/profile', userID, artist.updateProfile);
 router.patch('/editSongDetails/:id', artist.editSongDetails);
+router.patch('/acceptBandInvitation', userID, artist.acceptBandInvitation);
 
 router.delete('/deleteSong/:id', userID, artist.deleteSong);
 

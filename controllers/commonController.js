@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const emailService = require('../utility/emailController');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Band = require('../models/bandSchema');
 
 const signup = async (req, res) => {
   const {username, email, password, confirmPassword} = req.body;
@@ -188,6 +189,28 @@ const getFollowersList = async (req, res) => {
   }
 };
 
+const getNotifications = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    const bandInvitation = await Band.aggregate([
+      {$match: {requestedMembers: userId}},
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'bandAdmin',
+          foreignField: '_id',
+          as: 'bandAdminInfo',
+        },
+      },
+    ]);
+    if (bandInvitation) {
+      res.json(bandInvitation);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   signup,
   otpVerify,
@@ -195,4 +218,5 @@ module.exports = {
   getUserProfile,
   getFollowingList,
   getFollowersList,
+  getNotifications,
 };

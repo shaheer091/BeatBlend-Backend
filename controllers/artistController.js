@@ -3,7 +3,7 @@ const Songs = require('../models/songSchema');
 const User = require('../models/userSchema');
 const Profile = require('../models/profileSchema');
 const Band = require('../models/bandSchema');
-const emailSending = require('../utility/emailController');
+// const emailSending = require('../utility/emailController');
 
 const addSong = async (req, res) => {
   try {
@@ -238,12 +238,8 @@ const createBand = async (req, res) => {
       });
       await newBand.save();
       const user = await User.findById(id);
-      await emailSending.requestBandJoin(user.email);
-      if (user) {
-        console.log(`Request sent to user with id ${id}`);
-      } else {
-        console.log(`User with id ${id} not found`);
-      }
+      console.log(user);
+      // await emailSending.requestBandJoin(user.email);
     }
     res.json({
       message: 'Requests sent to the artists. Wait for their confirmation',
@@ -253,6 +249,28 @@ const createBand = async (req, res) => {
   }
 };
 
+const acceptBandInvitation = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    const bandId = req.body.bandId;
+    const band = await Band.findByIdAndUpdate(
+        bandId,
+        {
+          $pull: {requestedMembers: userId},
+          $push: {bandMembers: userId},
+        },
+        {new: true},
+    );
+    if (band) {
+      console.log(band);
+      res.json({message: 'Band invitation accepted successfully.'});
+    } else {
+      res.status(404).json({message: 'Band not found.'});
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 module.exports = {
   addSong,
@@ -265,4 +283,5 @@ module.exports = {
   getHome,
   getArtist,
   createBand,
+  acceptBandInvitation,
 };
