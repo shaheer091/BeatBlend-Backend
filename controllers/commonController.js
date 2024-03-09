@@ -6,6 +6,7 @@ const emailService = require('../utility/emailController');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Band = require('../models/bandSchema');
+const Songs = require('../models/songSchema');
 
 const signup = async (req, res) => {
   const {username, email, password, confirmPassword} = req.body;
@@ -192,6 +193,10 @@ const getFollowersList = async (req, res) => {
 const getNotifications = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    const user = await Users.findOne({_id: userId});
+    const {following}=user;
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setDate(twentyFourHoursAgo.getDate() - 1);
     const bandInvitation = await Band.aggregate([
       {$match: {requestedMembers: userId}},
       {
@@ -203,8 +208,47 @@ const getNotifications = async (req, res) => {
         },
       },
     ]);
-    if (bandInvitation) {
-      res.json(bandInvitation);
+    const songs = await Songs.aggregate([
+      {
+        $match: {
+          userId: {$in: following},
+          // releaseDate: {$gte: twentyFourHoursAgo},
+          deleteStatus: false,
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'artist',
+        },
+      },
+      {
+        $unwind: '$artist',
+      },
+      {
+        $lookup: {
+          from: 'userprofiles',
+          localField: 'artist._id',
+          foreignField: 'userId',
+          as: 'artistProfiles',
+        },
+      },
+      {
+        $sort: {
+          releaseDate: -1,
+        },
+      },
+    ]);
+    if (bandInvitation && songs) {
+      return res.json({bandInvitation, songs});
+    } else if (bandInvitation) {
+      return res.json({bandInvitation});
+    } else if (songs) {
+      return res.json({songs});
+    } else {
+      return res.json({message: 'Nothing to display'});
     }
   } catch (err) {
     console.log(err);
