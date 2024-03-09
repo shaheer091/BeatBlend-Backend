@@ -191,7 +191,7 @@ const getSong = async (req, res) => {
     const {username, following} = user;
 
     if (!following || following.length === 0) {
-      return res.json({message: 'You are not following anyone', username});
+      return res.json({message: 'Nothing to display', username});
     } else {
       const aggregatedSongs = await Songs.aggregate([
         {
@@ -206,6 +206,19 @@ const getSong = async (req, res) => {
             localField: 'userId',
             foreignField: '_id',
             as: 'artist',
+          },
+        },
+        {
+          $lookup: {
+            from: 'userprofiles',
+            localField: 'artist._id',
+            foreignField: 'userId',
+            as: 'artistProfiles',
+          },
+        },
+        {
+          $sort: {
+            releaseDate: -1,
           },
         },
       ]);
