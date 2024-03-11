@@ -129,15 +129,33 @@ const verifyUser = async (req, res) => {
 
 const search = async (req, res) => {
   try {
-    const userId = req.tockens.userId;
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const searchText = req.params.text;
     if (searchText !== '') {
-      const users = await Users.find({
-        _id: {$ne: userId},
-        username: {$regex: searchText, $options: 'i'},
-        role: {$in: ['user', 'artist']},
-        deleteStatus: false,
-      });
+      // const users = await Users.find({
+      //   _id: {$ne: userId},
+      //   username: {$regex: searchText, $options: 'i'},
+      //   role: {$in: ['user', 'artist']},
+      //   deleteStatus: false,
+      // });
+      const users = await Users.aggregate([
+        {
+          $match: {
+            _id: {$ne: userId},
+            username: {$regex: searchText, $options: 'i'},
+            role: {$in: ['user', 'artist']},
+            deleteStatus: false,
+          },
+        },
+        {
+          $lookup: {
+            from: 'userprofiles',
+            localField: '_id',
+            foreignField: 'userId',
+            as: 'profile',
+          },
+        },
+      ]);
       if (users) {
         res.status(200).json({users, userId});
       } else {

@@ -149,7 +149,7 @@ const getUserProfile = async (req, res) => {
         },
       },
     ]);
-    if (!user) {
+    if (!user || !user[0]) {
       return res.json({message: 'No User Found'});
     } else {
       res.json(user);

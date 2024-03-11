@@ -7,6 +7,7 @@ const commonRoutes = require('./routes/commonRoutes');
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const artistRoutes = require('./routes/artistRoute');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 const port = process.env.PORT;
@@ -18,6 +19,7 @@ app.use('/', commonRoutes);
 app.use('/user', userRoutes);
 app.use('/admin', adminRoutes);
 app.use('/artist', artistRoutes);
+app.use('/chat', chatRoutes);
 
 const dbURI = process.env.DATABASE;
 mongoose.connect(dbURI);

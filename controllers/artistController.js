@@ -225,7 +225,6 @@ const createBand = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const file = req?.file?.location;
-    console.log(req.body);
     const {bandName, artistid} = req.body;
 
     // Loop through each artistid
