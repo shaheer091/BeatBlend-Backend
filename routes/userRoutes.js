@@ -28,6 +28,7 @@ router.post(
     user.createPlaylist,
 );
 router.post('/likeUnlikeSong', getUserId, user.likeUnlikeSong);
+router.post('/addComment', getUserId, user.addComment);
 
 router.delete('/removeFromPlaylist/:id', getUserId, user.removeFromPlaylist);
 router.delete('/deletePlaylist/:id', getUserId, user.deletePlaylist);

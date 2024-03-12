@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const sendOtp = require('../utility/sendOtp');
 const verifyOtpFn = require('../utility/verifyOtp');
 const emailController = require('../utility/emailController');
+const Comment = require('../models/commentSchema');
 
 const getProfile = async (req, res) => {
   try {
@@ -485,6 +486,23 @@ const likeUnlikeSong = async (req, res) => {
   }
 };
 
+const addComment = async (req, res) => {
+  const userId= new mongoose.Types.ObjectId(req.tockens.userId);
+  const {comment, songId}=req.body;
+  if (!userId || !songId || !comment) {
+    return res.json({message: 'Required fields are missing'});
+  }
+  const newComment = new Comment({
+    userId,
+    songId,
+    comment,
+  });
+  await newComment.save();
+  if (newComment) {
+    res.json({message: 'Comment added successfully'});
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -504,4 +522,5 @@ module.exports = {
   removeFromPlaylist,
   deletePlaylist,
   likeUnlikeSong,
+  addComment,
 };

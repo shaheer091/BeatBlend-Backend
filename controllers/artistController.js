@@ -209,6 +209,17 @@ const getArtist = async (req, res) => {
       role: 'artist',
       isVerified: true,
     });
+    const existingBand = await Band.findOne({
+      $or: [
+        {bandAdmin: userId},
+        {bandMembers: {$in: [userId]}},
+      ],
+    });
+
+    if (existingBand) {
+      console.log(existingBand);
+      return res.status(400).json({message: 'User already belongs to a band'});
+    }
 
     if (artists && artists.length > 0) {
       return res.json({artists});
@@ -227,6 +238,7 @@ const createBand = async (req, res) => {
     const file = req?.file?.location;
     const {bandName, artistid} = req.body;
     const bandId = new mongoose.Types.ObjectId();
+
     const newBand = new Band({
       _id: bandId,
       bandName,
@@ -236,13 +248,7 @@ const createBand = async (req, res) => {
     });
     await newBand.save();
 
-
-    await User.findByIdAndUpdate(
-        userId,
-        {bandId: bandId},
-        {new: true},
-    );
-    // await emailSending.requestBandJoin(user.email);
+    await User.findByIdAndUpdate(userId, {bandId: bandId}, {new: true});
 
     res.json({
       message: 'Requests sent to the artists. Wait for their confirmation',
@@ -252,6 +258,7 @@ const createBand = async (req, res) => {
     res.status(500).json({error: 'Internal server error'});
   }
 };
+
 
 const acceptBandInvitation = async (req, res) => {
   try {
