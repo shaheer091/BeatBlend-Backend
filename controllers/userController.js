@@ -204,7 +204,7 @@ const followAndUnfollowUser = async (req, res) => {
 
 const getSong = async (req, res) => {
   try {
-    const userId = req.tockens.userId;
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const user = await Users.findOne({_id: userId});
     const {username, following} = user;
 
@@ -240,7 +240,7 @@ const getSong = async (req, res) => {
           },
         },
       ]);
-      return res.json({songs: aggregatedSongs, username});
+      return res.json({songs: aggregatedSongs, username, userId});
     }
   } catch (err) {
     console.error(err);
@@ -452,6 +452,36 @@ const deletePlaylist = async (req, res) => {
   }
 };
 
+const likeUnlikeSong = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    const songId = new mongoose.Types.ObjectId(req.body.songId);
+    const user = await Users.findById(userId);
+    const alreadyLiked = user.likedSongs.includes(songId);
+    if (alreadyLiked) {
+      await Users.findByIdAndUpdate(userId, {$pull: {likedSongs: songId}});
+      await Songs.findByIdAndUpdate(songId, {$pull: {likedBy: userId}});
+      return res.status(200).json({message: 'Disliked the song'});
+    } else {
+      await Users.findByIdAndUpdate(userId, {$addToSet: {likedSongs: songId}});
+      await Songs.findByIdAndUpdate(songId, {$addToSet: {likedBy: userId}});
+      return res.status(200).json({message: 'Liked the song'});
+    }
+
+    res
+        .status(200)
+        .json({success: true, message: 'Toggle like status successfully.'});
+  } catch (error) {
+    console.error('Error toggling like status:', error);
+    res
+        .status(500)
+        .json({
+          success: false,
+          message: 'An error occurred while toggling like status.',
+        });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -470,4 +500,5 @@ module.exports = {
   getSinglePlaylist,
   removeFromPlaylist,
   deletePlaylist,
+  likeUnlikeSong,
 };

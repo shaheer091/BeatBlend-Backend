@@ -27,6 +27,7 @@ router.post(
     upload.single('playlistImage'),
     user.createPlaylist,
 );
+router.post('/likeUnlikeSong', getUserId, user.likeUnlikeSong);
 
 router.delete('/removeFromPlaylist/:id', getUserId, user.removeFromPlaylist);
 router.delete('/deletePlaylist/:id', getUserId, user.deletePlaylist);

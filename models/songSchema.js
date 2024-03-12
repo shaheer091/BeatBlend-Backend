@@ -33,6 +33,9 @@ const songSchema = new mongoose.Schema({
     type: String,
     default: new Date(),
   },
+  likedBy: {
+    type: [mongoose.Types.ObjectId],
+  },
 });
 const song = mongoose.model('songs', songSchema);
 module.exports=song;

@@ -50,6 +50,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     dafault: false,
   },
+  likedSongs: {
+    type: [mongoose.Types.ObjectId],
+  },
 });
 
 const user = mongoose.model('User', userSchema);
