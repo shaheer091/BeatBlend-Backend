@@ -53,6 +53,9 @@ const userSchema = new mongoose.Schema({
   likedSongs: {
     type: [mongoose.Types.ObjectId],
   },
+  bandId: {
+    type: mongoose.Types.ObjectId,
+  },
 });
 
 const user = mongoose.model('User', userSchema);

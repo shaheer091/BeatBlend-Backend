@@ -226,33 +226,39 @@ const createBand = async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const file = req?.file?.location;
     const {bandName, artistid} = req.body;
+    const bandId = new mongoose.Types.ObjectId();
+    const newBand = new Band({
+      _id: bandId,
+      bandName,
+      bandAdmin: userId,
+      requestedMembers: artistid,
+      bandImage: file,
+    });
+    await newBand.save();
 
-    // Loop through each artistid
-    for (const id of artistid) {
-      const newBand = new Band({
-        bandName,
-        bandAdmin: userId,
-        requestedMembers: [id],
-        bandImage: file,
-      });
-      await newBand.save();
-      const user = await User.findById(id);
-      console.log(user);
-      // await emailSending.requestBandJoin(user.email);
-    }
+
+    await User.findByIdAndUpdate(
+        userId,
+        {bandId: bandId},
+        {new: true},
+    );
+    // await emailSending.requestBandJoin(user.email);
+
     res.json({
       message: 'Requests sent to the artists. Wait for their confirmation',
     });
   } catch (err) {
-    console.log(err);
+    console.error('Error creating band:', err);
+    res.status(500).json({error: 'Internal server error'});
   }
 };
 
 const acceptBandInvitation = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-    const bandId = req.body.bandId;
-    const band = await Band.findByIdAndUpdate(
+    const bandId = new mongoose.Types.ObjectId(req.body.bandId);
+
+    const updatedBand = await Band.findOneAndUpdate(
         bandId,
         {
           $pull: {requestedMembers: userId},
@@ -260,14 +266,26 @@ const acceptBandInvitation = async (req, res) => {
         },
         {new: true},
     );
-    if (band) {
-      console.log(band);
+    if (updatedBand) {
+      await User.findByIdAndUpdate(userId, {bandId: bandId});
       res.json({message: 'Band invitation accepted successfully.'});
     } else {
       res.status(404).json({message: 'Band not found.'});
     }
   } catch (err) {
-    console.log(err);
+    console.error('Error accepting band invitation:', err);
+    res.status(500).json({error: 'Internal server error'});
+  }
+};
+
+const declineBandInvitation = async (req, res) => {
+  const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+  const {bandId} = req.body;
+  const band = await Band.findByIdAndUpdate(bandId, {
+    $pull: {requestedMembers: userId},
+  });
+  if (band) {
+    res.json({message: 'Band invitation Declined'});
   }
 };
 
@@ -283,4 +301,5 @@ module.exports = {
   getArtist,
   createBand,
   acceptBandInvitation,
+  declineBandInvitation,
 };

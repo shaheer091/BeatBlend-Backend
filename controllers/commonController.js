@@ -194,9 +194,8 @@ const getNotifications = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const user = await Users.findOne({_id: userId});
-    const {following}=user;
-    const twentyFourHoursAgo = new Date();
-    twentyFourHoursAgo.setDate(twentyFourHoursAgo.getDate() - 1);
+    const {following} = user;
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const bandInvitation = await Band.aggregate([
       {$match: {requestedMembers: userId}},
       {
@@ -212,7 +211,7 @@ const getNotifications = async (req, res) => {
       {
         $match: {
           userId: {$in: following},
-          // releaseDate: {$gte: twentyFourHoursAgo},
+          releaseDate: {$gte: {$toMillis: twentyFourHoursAgo}},
           deleteStatus: false,
         },
       },
@@ -241,14 +240,14 @@ const getNotifications = async (req, res) => {
         },
       },
     ]);
-    if (bandInvitation && songs) {
+    if (bandInvitation.length > 0 && songs.length > 0) {
       return res.json({bandInvitation, songs});
-    } else if (bandInvitation) {
+    } else if (bandInvitation.length > 0) {
       return res.json({bandInvitation});
-    } else if (songs) {
+    } else if (songs.length > 0) {
       return res.json({songs});
     } else {
-      return res.json({message: 'Nothing to display'});
+      return res.json({message: 'No new Notifications'});
     }
   } catch (err) {
     console.log(err);

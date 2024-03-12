@@ -83,6 +83,33 @@ const requestBandJoin = async function(email) {
   }
 };
 
+const acceptedBandInvitaion = async function(email) {
+  try {
+    const mailOption = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Invitation to Join Band',
+      html: `<p>Dear artist,</p><p>The artist you are requested to join the band has accepted your request.</p><p>Best regards<br></p>`,
+    };
+    await transporter.sendMail(mailOption);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const declinedBandInvitaion = async function(email) {
+  try {
+    const mailOption = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Invitation to Join Band',
+      html: `<p>Dear artist,</p><p>The artist you are requested to join the band has declined your request.</p><p>Best regards<br></p>`,
+    };
+    await transporter.sendMail(mailOption);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 module.exports = {
   sendOtp,
@@ -90,4 +117,6 @@ module.exports = {
   requestApproval,
   declineUser,
   requestBandJoin,
+  acceptedBandInvitaion,
+  declinedBandInvitaion,
 };
