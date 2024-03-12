@@ -271,7 +271,7 @@ const getSettings = async (req, res) => {
 
 const favAndUnfavSong = async (req, res) => {
   const {songId} = req.body;
-  const userId = req.tockens.userId;
+  const userId = new mongoose.Types.ObjectId(req.tockens.userId);
 
   try {
     const songExistenceChecker = await Songs.exists({_id: songId});
@@ -283,18 +283,21 @@ const favAndUnfavSong = async (req, res) => {
     if (!user) {
       return res.status(404).json({error: 'User not found'});
     }
-
-    const index = user.favorite.indexOf(songId);
-    if (index !== -1) {
-      user.favorite.splice(index, 1);
-      await user.save();
-      return res.json({message: 'Removed from favorites', fav: false});
+    const alreadyFav = user.favorite.includes(songId);
+    if (alreadyFav) {
+      await Users.findByIdAndUpdate(userId, {$pull: {favorite: songId}});
+      await Songs.findByIdAndUpdate(songId, {
+        $pull: {favouritedBy: userId},
+      });
+      return res.status(200).json({message: 'Disliked the song'});
     } else {
-      user.favorite.push(songId);
-      await user.save();
-      return res
-          .status(200)
-          .json({message: 'Song favorited successfully', fav: true});
+      await Users.findByIdAndUpdate(userId, {
+        $addToSet: {favorite: songId},
+      });
+      await Songs.findByIdAndUpdate(songId, {
+        $addToSet: {favouritedBy: userId},
+      });
+      return res.status(200).json({message: 'Liked the song', userId});
     }
   } catch (error) {
     console.error(error);
@@ -463,7 +466,9 @@ const likeUnlikeSong = async (req, res) => {
       await Songs.findByIdAndUpdate(songId, {$pull: {likedBy: userId}});
       return res.status(200).json({message: 'Disliked the song'});
     } else {
-      await Users.findByIdAndUpdate(userId, {$addToSet: {likedSongs: songId}});
+      await Users.findByIdAndUpdate(userId, {
+        $addToSet: {likedSongs: songId},
+      });
       await Songs.findByIdAndUpdate(songId, {$addToSet: {likedBy: userId}});
       return res.status(200).json({message: 'Liked the song'});
     }
@@ -473,12 +478,10 @@ const likeUnlikeSong = async (req, res) => {
         .json({success: true, message: 'Toggle like status successfully.'});
   } catch (error) {
     console.error('Error toggling like status:', error);
-    res
-        .status(500)
-        .json({
-          success: false,
-          message: 'An error occurred while toggling like status.',
-        });
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while toggling like status.',
+    });
   }
 };
 

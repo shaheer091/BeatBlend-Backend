@@ -33,6 +33,9 @@ const songSchema = new mongoose.Schema({
     type: String,
     default: new Date(),
   },
+  favouritedBy: {
+    type: [mongoose.Types.ObjectId],
+  },
   likedBy: {
     type: [mongoose.Types.ObjectId],
   },
