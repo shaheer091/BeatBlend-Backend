@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const sendOtp = require('../utility/sendOtp');
 const verifyOtpFn = require('../utility/verifyOtp');
 const emailController = require('../utility/emailController');
-const Comment = require('../models/commentSchema');
+const Comments = require('../models/commentSchema');
 
 const getProfile = async (req, res) => {
   try {
@@ -487,12 +487,12 @@ const likeUnlikeSong = async (req, res) => {
 };
 
 const addComment = async (req, res) => {
-  const userId= new mongoose.Types.ObjectId(req.tockens.userId);
-  const {comment, songId}=req.body;
+  const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+  const {comment, songId} = req.body;
   if (!userId || !songId || !comment) {
     return res.json({message: 'Required fields are missing'});
   }
-  const newComment = new Comment({
+  const newComment = new Comments({
     userId,
     songId,
     comment,
@@ -500,6 +500,48 @@ const addComment = async (req, res) => {
   await newComment.save();
   if (newComment) {
     res.json({message: 'Comment added successfully'});
+  }
+};
+
+const getComment = async (req, res) => {
+  const songId = new mongoose.Types.ObjectId(req.params.songId);
+  console.log(songId);
+  const comments = await Comments.aggregate([
+    {
+      $match: {songId},
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'users',
+        pipeline: [
+          {
+            $project: {_id: 1, username: 1},
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: 'userprofiles',
+        localField: 'users._id',
+        foreignField: 'userId',
+        as: 'userProfile',
+        pipeline: [
+          {
+            $project: {_id: 1, imageUrl: 1},
+          },
+        ],
+      },
+    },
+  ]);
+  if (comments.length>0) {
+    console.log(comments);
+    res.json(comments);
+  } else {
+    res.json({message: 'No comments yet'});
   }
 };
 
@@ -523,4 +565,5 @@ module.exports = {
   deletePlaylist,
   likeUnlikeSong,
   addComment,
+  getComment,
 };
