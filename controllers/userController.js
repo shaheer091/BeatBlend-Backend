@@ -441,9 +441,11 @@ const removeFromPlaylist = async (req, res) => {
 };
 
 const deletePlaylist = async (req, res) => {
-  const playlistId = new mongoose.Types.ObjectId(req.params.id);
-
+  console.log(req.params);
   try {
+    const playlistId = new mongoose.Types.ObjectId(req.params.id);
+    console.log(playlistId);
+
     const result = await Playlist.deleteOne({_id: playlistId});
     if (result.deletedCount === 1) {
       res.status(200).json({message: 'Playlist deleted successfully'});
@@ -487,61 +489,71 @@ const likeUnlikeSong = async (req, res) => {
 };
 
 const addComment = async (req, res) => {
-  const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-  const {comment, songId} = req.body;
-  if (!userId || !songId || !comment) {
-    return res.json({message: 'Required fields are missing'});
-  }
-  const newComment = new Comments({
-    userId,
-    songId,
-    comment,
-  });
-  await newComment.save();
-  if (newComment) {
-    res.json({message: 'Comment added successfully'});
+  try {
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    const {comment, songId} = req.body;
+    if (!userId || !songId || !comment) {
+      return res.json({message: 'Required fields are missing'});
+    }
+    const newComment = new Comments({
+      userId,
+      songId,
+      comment,
+    });
+    await newComment.save();
+    if (newComment) {
+      res.json({message: 'Comment added successfully'});
+    } else {
+      res.json({message: 'Error addning Comment'});
+    }
+  } catch (err) {
+    console.log(err);
   }
 };
 
 const getComment = async (req, res) => {
-  const songId = new mongoose.Types.ObjectId(req.params.songId);
-  console.log(songId);
-  const comments = await Comments.aggregate([
-    {
-      $match: {songId},
-    },
-    {
-      $lookup: {
-        from: 'users',
-        localField: 'userId',
-        foreignField: '_id',
-        as: 'users',
-        pipeline: [
-          {
-            $project: {_id: 1, username: 1},
-          },
-        ],
+  try {
+    const songId = new mongoose.Types.ObjectId(req.params.songId);
+    console.log(songId);
+    const comments = await Comments.aggregate([
+      {
+        $match: {songId},
       },
-    },
-    {
-      $lookup: {
-        from: 'userprofiles',
-        localField: 'users._id',
-        foreignField: 'userId',
-        as: 'userProfile',
-        pipeline: [
-          {
-            $project: {_id: 1, imageUrl: 1},
-          },
-        ],
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'users',
+          pipeline: [
+            {
+              $project: {_id: 1, username: 1},
+            },
+          ],
+        },
       },
-    },
-  ]);
-  if (comments.length>0) {
-    console.log(comments);
-    res.json(comments);
-  } else {
-    res.json({message: 'No comments yet'});
+      {
+        $lookup: {
+          from: 'userprofiles',
+          localField: 'users._id',
+          foreignField: 'userId',
+          as: 'userProfile',
+          pipeline: [
+            {
+              $project: {_id: 1, imageUrl: 1},
+            },
+          ],
+        },
+      },
+    ]);
+    if (comments.length > 0) {
+      console.log(comments);
+      res.json(comments);
+    } else {
+      res.json({message: 'No comments yet'});
+    }
+  } catch (err) {
+    console.log(err);
   }
 };
 

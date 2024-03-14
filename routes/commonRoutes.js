@@ -8,7 +8,8 @@ router.post('/signup', common.signup);
 router.post('/otp-verify', common.otpVerify);
 router.post('/login', common.login);
 
-router.get('/user-profile/:id', common.getUserProfile);
+router.get('/user-profile/:id', getUserId, common.getUserProfile);
+router.get('/band-profile/:id', getUserId, common.getBandProfile);
 router.get('/following-list', getUserId, common.getFollowingList);
 router.get('/followers-list', getUserId, common.getFollowersList);
 router.get('/notifications', getUserId, common.getNotifications);

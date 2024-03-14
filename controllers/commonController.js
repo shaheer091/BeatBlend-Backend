@@ -148,6 +148,22 @@ const getUserProfile = async (req, res) => {
           as: 'songs',
         },
       },
+      {
+        $lookup: {
+          from: 'bands',
+          localField: '_id',
+          foreignField: 'bandAdmin',
+          as: 'bandAdmin',
+        },
+      },
+      {
+        $lookup: {
+          from: 'bands',
+          localField: '_id',
+          foreignField: 'bandMembers',
+          as: 'bandMember',
+        },
+      },
     ]);
     if (!user || !user[0]) {
       return res.json({message: 'No User Found'});
@@ -254,6 +270,35 @@ const getNotifications = async (req, res) => {
   }
 };
 
+const getBandProfile = async (req, res) =>{
+  const bandId = new mongoose.Types.ObjectId(req.params.id);
+  const band = await Band.aggregate([
+    {
+      $match: {_id: bandId},
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'bandAdmin',
+        foreignField: '_id',
+        as: 'bandAdmin',
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'bandMembers',
+        foreignField: '_id',
+        as: 'bandMembers',
+      },
+    },
+    {
+      $unwind: '$bandAdmin',
+    },
+  ]);
+  res.json(band);
+};
+
 module.exports = {
   signup,
   otpVerify,
@@ -262,4 +307,5 @@ module.exports = {
   getFollowingList,
   getFollowersList,
   getNotifications,
+  getBandProfile,
 };
