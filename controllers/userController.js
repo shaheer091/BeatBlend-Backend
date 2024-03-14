@@ -389,6 +389,7 @@ const getPlaylist = async (req, res) => {
 
 const getSinglePlaylist = async (req, res) => {
   try {
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const playlistId = new mongoose.Types.ObjectId(req.params.id);
     const playlist = await Playlist.aggregate([
       {$match: {_id: playlistId}},
@@ -419,7 +420,9 @@ const getSinglePlaylist = async (req, res) => {
       },
     ]);
 
-    res.json(playlist);
+    if (playlist) {
+      res.json({playlist, userId});
+    }
   } catch (err) {
     console.log(err);
   }
