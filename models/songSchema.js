@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const songSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Types.ObjectId,
+    ref: 'User',
   },
   title: {
     type: String,
@@ -31,6 +32,12 @@ const songSchema = new mongoose.Schema({
   releaseDate: {
     type: String,
     default: new Date(),
+  },
+  favouritedBy: {
+    type: [mongoose.Types.ObjectId],
+  },
+  likedBy: {
+    type: [mongoose.Types.ObjectId],
   },
 });
 const song = mongoose.model('songs', songSchema);

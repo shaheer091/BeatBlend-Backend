@@ -1,8 +1,8 @@
-const Users = require('../../models/userSchema');
-// const Profile = require('../../models/profileSchema');
-const PendingUser = require('../../models/pendingUserSchema');
+const Users = require('../models/userSchema');
+// const Profile = require('../models/profileSchema');
+const PendingUser = require('../models/pendingUserSchema');
 // const mongoose = require('mongoose');
-const emailController = require('../commonController/emailController');
+const emailController = require('../utility/emailController');
 
 const getAllUsers = async (req, res) => {
   const user = await Users.find({role: 'user'});
@@ -89,6 +89,25 @@ const declineUser = async (req, res) => {
     res.json({message: 'Error while declining User'});
   }
 };
+const changeBlockStatus = async (req, res) => {
+  try {
+    const userID = req.body.userId;
+    const user = await Users.findOne({_id: userID});
+    const newBlockStatus = !user.isBlocked;
+    await Users.updateOne(
+        {_id: userID},
+        {$set: {isBlocked: newBlockStatus}},
+    );
+    if (newBlockStatus) {
+      res.json({message: 'user blocked successfully'});
+    } else {
+      res.json({message: 'user unblocked successfully'});
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({message: 'error blocking user'});
+  }
+};
 
 module.exports = {
   getAllUsers,
@@ -98,4 +117,5 @@ module.exports = {
   changeDeleteStatus,
   approveUser,
   declineUser,
+  changeBlockStatus,
 };

@@ -46,6 +46,16 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+  isBlocked: {
+    type: Boolean,
+    dafault: false,
+  },
+  likedSongs: {
+    type: [mongoose.Types.ObjectId],
+  },
+  bandId: {
+    type: mongoose.Types.ObjectId,
+  },
 });
 
 const user = mongoose.model('User', userSchema);
