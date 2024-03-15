@@ -105,18 +105,27 @@ const login = async (req, res) => {
           return res.json({message: 'Password did not match'});
         }
         const role = existingUser.role;
-
         const token = jwt.sign(
             {userId: existingUser._id},
             process.env.SECRET_KEY,
             {expiresIn: '1d'},
         );
-        return res.json({
-          success: true,
-          message: 'Login successful',
-          token,
-          role: role,
-        });
+        if (existingUser.bandId) {
+          return res.json({
+            success: true,
+            message: 'Login successful',
+            token,
+            role: role,
+            isInBand: 'true',
+          });
+        } else {
+          return res.json({
+            success: true,
+            message: 'Login successful',
+            token,
+            role: role,
+          });
+        };
       } else {
         return res.json({message: 'This account has been deleted'});
       }

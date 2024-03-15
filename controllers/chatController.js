@@ -30,6 +30,7 @@ const allUserMessages = async (req, res) => {
     res.status(500).json({error: 'Internal server error'});
   }
 };
+
 const getSingleUserChat = async (req, res) => {
   try {
     const username = req.params.name;
