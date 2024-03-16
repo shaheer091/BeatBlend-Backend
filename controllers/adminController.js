@@ -89,6 +89,7 @@ const declineUser = async (req, res) => {
     res.json({message: 'Error while declining User'});
   }
 };
+
 const changeBlockStatus = async (req, res) => {
   try {
     const userID = req.body.userId;
@@ -109,6 +110,18 @@ const changeBlockStatus = async (req, res) => {
   }
 };
 
+const getHome = async (req, res) => {
+  try {
+    const users = await Users.find();
+    const pendingUsers = await PendingUser.find();
+    if (users) {
+      res.json({users, pendingUsers});
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   getAllUsers,
   getAllArtist,
@@ -118,4 +131,5 @@ module.exports = {
   approveUser,
   declineUser,
   changeBlockStatus,
+  getHome,
 };

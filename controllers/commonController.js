@@ -62,9 +62,17 @@ const otpVerify = async (req, res) => {
       isBlocked: false,
     });
     await newUser.save();
-    const token = jwt.sign({userId: newUser._id}, process.env.SECRET_KEY, {
-      expiresIn: '1d',
-    });
+    const token = jwt.sign(
+        {
+          userId: newUser._id,
+          username: newUser.username,
+          role: newUser.role,
+        },
+        process.env.SECRET_KEY,
+        {
+          expiresIn: '1d',
+        },
+    );
     return res.status(200).json({
       success: true,
       message: 'OTP verified successfully',
@@ -106,11 +114,15 @@ const login = async (req, res) => {
         }
         const role = existingUser.role;
         const token = jwt.sign(
-            {userId: existingUser._id},
+            {
+              userId: existingUser._id,
+              username: existingUser.username,
+              role: existingUser.role,
+            },
             process.env.SECRET_KEY,
             {expiresIn: '1d'},
         );
-        if (existingUser.bandId) {
+        if (existingUser.bandId != '') {
           return res.json({
             success: true,
             message: 'Login successful',
@@ -125,7 +137,7 @@ const login = async (req, res) => {
             token,
             role: role,
           });
-        };
+        }
       } else {
         return res.json({message: 'This account has been deleted'});
       }
@@ -279,7 +291,7 @@ const getNotifications = async (req, res) => {
   }
 };
 
-const getBandProfile = async (req, res) =>{
+const getBandProfile = async (req, res) => {
   const bandId = new mongoose.Types.ObjectId(req.params.id);
   const band = await Band.aggregate([
     {
