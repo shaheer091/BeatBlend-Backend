@@ -30,6 +30,8 @@ router.post(
 );
 router.post('/likeUnlikeSong', getUserId, user.likeUnlikeSong);
 router.post('/addComment', getUserId, user.addComment);
+router.post('/premium', getUserId, user.getPremium);
+router.post('/successPayment', getUserId, user.successPayment);
 
 router.delete('/removeFromPlaylist/:id', getUserId, user.removeFromPlaylist);
 router.delete('/deletePlaylist/:id', getUserId, user.deletePlaylist);

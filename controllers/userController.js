@@ -8,6 +8,8 @@ const sendOtp = require('../utility/sendOtp');
 const verifyOtpFn = require('../utility/verifyOtp');
 const emailController = require('../utility/emailController');
 const Comments = require('../models/commentSchema');
+const razorpay = require('../utility/razorPay');
+const Payment = require('../models/paymentSchema');
 
 const getProfile = async (req, res) => {
   try {
@@ -560,6 +562,46 @@ const getComment = async (req, res) => {
   }
 };
 
+const getPremium = async (req, res) => {
+  const amount = req.body.price;
+  razorpay.orders
+      .create({
+        amount: amount * 100,
+        currency: 'INR',
+        receipt: 'receipt_' + Math.random().toString(36).substring(2, 15),
+      })
+      .then((order) => {
+        res.json(order);
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).json({error: 'Failed to create order'});
+      });
+};
+
+const successPayment = async (req, res) => {
+  const userId = req.tockens.userId;
+  try {
+    const orderId=req.body.data.razorpay_order_id;
+    const paymentId=req.body.data.razorpay_payment_id;
+    const signature=req.body.data.razorpay_signature;
+    await Users.findOneAndUpdate(
+        {_id: userId},
+        {$set: {isPremium: true}},
+        {new: true},
+    );
+    const newPayment = new Payment({
+      userId,
+      orderId,
+      paymentId,
+      signature,
+    });
+    newPayment.save();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -581,4 +623,6 @@ module.exports = {
   likeUnlikeSong,
   addComment,
   getComment,
+  getPremium,
+  successPayment,
 };
