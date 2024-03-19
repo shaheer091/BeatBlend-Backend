@@ -259,7 +259,6 @@ const createBand = async (req, res) => {
   }
 };
 
-
 const acceptBandInvitation = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);

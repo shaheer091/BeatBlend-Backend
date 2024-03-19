@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Users = require('../models/userSchema');
 const Bands = require('../models/bandSchema');
 // const Profile = require('../models/profileSchema');
-// const Songs = require('../models/songSchema');
+const Songs = require('../models/songSchema');
 // const Playlist = require('../models/playlistSchema');
 
 const getBandHome = async (req, res) => {
@@ -24,10 +24,45 @@ const getBandHome = async (req, res) => {
 };
 
 const addSong = async (req, res) => {
-  // console.log(req.tockens.userId);
-  // console.log(req.body);
-  // const songFile = req.file.location;
-  // const {title, album, genre, duration, releaseDate}=req.body;
+  try {
+    const userId = req.tockens.userId;
+    const {title, album, genre, duration, releaseDate} = req.body;
+    const songUrl = req.file.location;
+    const user = await Users.findById(userId);
+    const band = await Bands.findById(user.bandId);
+    if (!title || !genre || !songUrl) {
+      return res.json({message: 'Enter the required fields'});
+    } else {
+      const defaultReleaseDate = releaseDate ?
+        releaseDate :
+        new Date().toISOString();
+
+      const newSong = new Songs({
+        userId: userId,
+        title,
+        songUrl: songUrl,
+        artist: band.bandName,
+        album,
+        genre,
+        duration,
+        releaseDate: defaultReleaseDate,
+      });
+      await newSong.save();
+      res.json({
+        message: 'Song Added Succesfully',
+        success: true,
+        description: 'Your song has been uploaded and added to the system.',
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.json({
+      message: 'Error adding Song',
+      success: false,
+      description:
+        'There was an error uploading your song. Please try again later.',
+    });
+  }
 };
 
 const getBandMembers = async (req, res) => {
