@@ -38,7 +38,7 @@ const addSong = async (req, res) => {
         new Date().toISOString();
 
       const newSong = new Songs({
-        userId: userId,
+        userId: band._id,
         title,
         songUrl: songUrl,
         artist: band.bandName,
@@ -177,6 +177,44 @@ const addToBand = async (req, res) => {
   }
 };
 
+const getSongs = async (req, res) => {
+  try {
+    const userId = req.tockens?.userId;
+    if (!userId) {
+      return res.status(400).json({error: 'User ID is missing'});
+    }
+    const user = await Users.findById(userId);
+    if (!user) {
+      return res.status(404).json({error: 'User not found'});
+    }
+
+    const bandId = user.bandId;
+    if (!bandId) {
+      return res.status(400).json({error: 'Band ID is missing'});
+    }
+
+    const band = await Bands.findById(bandId);
+    if (!band) {
+      return res.status(404).json({error: 'Band not found'});
+    }
+
+    const songs = await Songs.find({userId: band._id});
+    res.json(songs);
+  } catch (error) {
+    console.error('Error fetching songs:', error);
+    res.status(500).json({error: 'Internal Server Error'});
+  }
+};
+
+const deleteSong = async (req, res) => {
+  const userId = req.tockens.userId;
+  const songId = req.body.songId;
+  const user = await Users.findById(userId);
+  const band = await Bands.findByIf(user.bandId);
+  const songs = await Songs.findById(songId);
+  // res.json(songs);
+};
+
 module.exports = {
   getBandHome,
   addSong,
@@ -184,4 +222,6 @@ module.exports = {
   removeFromBand,
   searchArtist,
   addToBand,
+  getSongs,
+  deleteSong,
 };
