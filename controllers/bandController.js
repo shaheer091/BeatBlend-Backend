@@ -206,14 +206,63 @@ const getSongs = async (req, res) => {
   }
 };
 
-const deleteSong = async (req, res) => {
-  const userId = req.tockens.userId;
-  const songId = req.body.songId;
-  const user = await Users.findById(userId);
-  const band = await Bands.findByIf(user.bandId);
-  const songs = await Songs.findById(songId);
-  // res.json(songs);
+const getSingleSong = async (req, res) => {
+  try {
+    const songId = req.params.id;
+    if (!songId) {
+      return res.status(400).json({message: 'Missing song ID'});
+    }
+    const song = await Songs.findById(songId);
+
+    if (!song) {
+      return res.status(404).json({message: 'Song not found'});
+    }
+    res.status(200).json(song);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({message: 'Internal server error'});
+  }
 };
+
+const editSong = async (req, res) => {
+  try {
+    console.log(req.body.data);
+    const songId = req.params.id;
+    const updatedSong = await Songs.updateOne(
+        {_id: songId},
+        {
+          $set: {
+            title: req.body.data.title,
+            album: req.body.data.album,
+            genre: req.body.data.genre,
+            duration: req.body.data.duration,
+          },
+        },
+    );
+
+    if (updatedSong) {
+      res
+          .status(200)
+          .json({
+            message: 'Song updated successfully',
+            discription: 'The song has been updated.',
+            success: true,
+          });
+    }
+  } catch (error) {
+    console.error('Error editing song:', error);
+    res.status(500).json({message: 'Internal server error'});
+  }
+};
+
+// const deleteSong = async (req, res) => {
+//   const userId = req.tockens.userId;
+//   const songId = req.body.songId;
+//   const user = await Users.findById(userId);
+//   const band = await Bands.findByIf(user.bandId);
+//   const songs = await Songs.findById(songId);
+//   // res.json(songs);
+// };
 
 module.exports = {
   getBandHome,
@@ -223,5 +272,7 @@ module.exports = {
   searchArtist,
   addToBand,
   getSongs,
-  deleteSong,
+  getSingleSong,
+  editSong,
+  // deleteSong,
 };
