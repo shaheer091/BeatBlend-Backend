@@ -122,7 +122,7 @@ const login = async (req, res) => {
             process.env.SECRET_KEY,
             {expiresIn: '1d'},
         );
-        if (existingUser.bandId != '') {
+        if (existingUser.bandId && existingUser.bandId != '') {
           return res.json({
             success: true,
             message: 'Login successful',
@@ -136,6 +136,7 @@ const login = async (req, res) => {
             message: 'Login successful',
             token,
             role: role,
+            isInBand: 'false',
           });
         }
       } else {
