@@ -7,9 +7,11 @@ const upload = require('../middleware/multer');
 
 router.get('/home', userId, band.getBandHome);
 router.get('/getBandMembers', userId, band.getBandMembers);
+router.get('/search/:searchText', userId, band.searchArtist);
 
 router.post('/addSong', userId, upload.single('songFile'), band.addSong);
 
 router.patch('/removeFromBand', userId, band.removeFromBand);
+router.patch('/addToBand', userId, band.addToBand);
 
 module.exports=router;

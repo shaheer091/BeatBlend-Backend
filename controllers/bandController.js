@@ -59,8 +59,8 @@ const getBandMembers = async (req, res) => {
 
 const removeFromBand = async (req, res) => {
   try {
-    const userId =req.tockens.userId;
-    const removerId =req.body.userId;
+    const userId = req.tockens.userId;
+    const removerId = req.body.userId;
     if (!userId || !removerId) {
       return res
           .status(400)
@@ -69,11 +69,9 @@ const removeFromBand = async (req, res) => {
     const user = await Users.findById(userId);
     const band = await Bands.findById(user.bandId);
     if (userId !== String(band.bandAdmin)) {
-      return res
-          .status(403)
-          .json({
-            message: 'You cannot perform this task. You are not the admin.',
-          });
+      return res.status(403).json({
+        message: 'You cannot perform this task. You are not the admin.',
+      });
     }
     const indexToRemove = band.bandMembers.indexOf(removerId);
     if (indexToRemove === -1) {
@@ -92,9 +90,63 @@ const removeFromBand = async (req, res) => {
   }
 };
 
+const searchArtist = async (req, res) => {
+  const userId = req.tockens.userId;
+  const searchText = req.params.searchText;
+  try {
+    const artists = await Users.find({
+      _id: {$ne: userId},
+      username: {$regex: searchText, $options: 'i'},
+      deleteStatus: false,
+      role: 'artist',
+      isVerified: true,
+    });
+    if (artists && artists.length > 0) {
+      return res.json({artists});
+    } else {
+      return res.json({artists: []});
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const addToBand = async (req, res) => {
+  try {
+    const userId = req.tockens.userId;
+    const {artistId} = req.body;
+    const user = await Users.findById(userId);
+    if (!user) {
+      return res.status(404).json({message: 'User not found'});
+    }
+    const band = await Bands.findById(user.bandId);
+    if (!band) {
+      return res.status(404).json({message: 'Band not found'});
+    }
+    if (userId !== String(band.bandAdmin)) {
+      return res.status(403).json({
+        message: 'You cannot perform this task. You are not the admin.',
+      });
+    }
+    if (
+      band.requestedMembers.some((memberId) => memberId.toString() === artistId)
+    ) {
+      return res.status(409).json({message: 'Artist already requested'});
+    }
+    band.requestedMembers.push(artistId);
+    await band.save();
+    res.status(200).json({message: 'Artist successfully requested'});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({message: 'Internal server error'});
+  }
+};
+
 module.exports = {
   getBandHome,
   addSong,
   getBandMembers,
   removeFromBand,
+  searchArtist,
+  addToBand,
 };
