@@ -233,7 +233,7 @@ const getNotifications = async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const user = await Users.findOne({_id: userId});
     const {following} = user;
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    // const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const bandInvitation = await Band.aggregate([
       {$match: {requestedMembers: userId}},
       {
@@ -249,7 +249,7 @@ const getNotifications = async (req, res) => {
       {
         $match: {
           userId: {$in: following},
-          releaseDate: {$gte: {$toMillis: twentyFourHoursAgo}},
+          // releaseDate: {$gte: {$toMillis: twentyFourHoursAgo}},
           deleteStatus: false,
         },
       },

@@ -16,6 +16,5 @@ router.post('/addSong', userId, upload.single('songFile'), band.addSong);
 router.patch('/removeFromBand', userId, band.removeFromBand);
 router.patch('/addToBand', userId, band.addToBand);
 router.patch('/editSong/:id', userId, band.editSong);
-// router.patch('/deleteSong', userId, band.deleteSong);
 
 module.exports=router;

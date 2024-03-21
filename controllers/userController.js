@@ -254,17 +254,10 @@ const getSong = async (req, res) => {
 const getSettings = async (req, res) => {
   try {
     const userId = req.tockens.userId;
-    const {following, followers} = await Users.findOne({_id: userId});
+    const user = await Users.findOne({_id: userId});
     const profile = await Profile.findOne({userId: userId});
-    let imageUrl;
-    if (profile) {
-      imageUrl = profile.imageUrl;
-    }
-
-    if (imageUrl) {
-      res.json({following, followers, imageUrl});
-    } else {
-      res.json({following, followers});
+    if (profile && user) {
+      res.json({user, profile});
     }
   } catch (err) {
     console.log(err);
@@ -417,6 +410,7 @@ const getSinglePlaylist = async (req, res) => {
       {
         $group: {
           _id: '$_id',
+          playlistName: {$first: '$playlistName'},
           songs: {$push: '$songs'},
         },
       },
@@ -431,7 +425,7 @@ const getSinglePlaylist = async (req, res) => {
 };
 
 const removeFromPlaylist = async (req, res) => {
-  const userId = req.tockens.userId;
+  const userId = new mongoose.Types.ObjectId(req.tockens.userId);
   const songId = new mongoose.Types.ObjectId(req.params.id);
 
   try {
@@ -582,9 +576,9 @@ const getPremium = async (req, res) => {
 const successPayment = async (req, res) => {
   const userId = req.tockens.userId;
   try {
-    const orderId=req.body.data.razorpay_order_id;
-    const paymentId=req.body.data.razorpay_payment_id;
-    const signature=req.body.data.razorpay_signature;
+    const orderId = req.body.data.razorpay_order_id;
+    const paymentId = req.body.data.razorpay_payment_id;
+    const signature = req.body.data.razorpay_signature;
     await Users.findOneAndUpdate(
         {_id: userId},
         {$set: {isPremium: true}},
@@ -597,6 +591,29 @@ const successPayment = async (req, res) => {
       signature,
     });
     newPayment.save();
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const getPlaylistData = async (req, res) => {
+  try {
+    // const userId = req.tockens.userId;
+    const playlistId = new mongoose.Types.ObjectId(req.params.id);
+    const playlist = await Playlist.aggregate([
+      {$match: {_id: playlistId}},
+      {
+        $lookup: {
+          from: 'songs',
+          localField: 'songId',
+          foreignField: '_id',
+          as: 'songs',
+        },
+      },
+    ]);
+    if (playlist) {
+      res.json(playlist);
+    }
   } catch (err) {
     console.log(err);
   }
@@ -625,4 +642,5 @@ module.exports = {
   getComment,
   getPremium,
   successPayment,
+  getPlaylistData,
 };

@@ -11,9 +11,11 @@ const postingChat = async (data, sender, reviver) => {
 
 const userMessages = async (req, res) => {
   try {
+    const userId = req.tockens.userId;
     const messages = await Chats.find({
-      $or: [{sender: req.tokens.username}, {reciever: req.tokens.username}],
+      $or: [{sender: userId}, {reciever: userId}],
     });
+    console.log(messages);
     res.json(messages);
   } catch (error) {
     console.error('Error fetching messages:', error);

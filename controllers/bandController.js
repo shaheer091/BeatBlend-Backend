@@ -226,20 +226,21 @@ const getSingleSong = async (req, res) => {
 
 const editSong = async (req, res) => {
   try {
+    const {title, album, genre, duration}=req.body;
     console.log(req.body.data);
     const songId = req.params.id;
     const updatedSong = await Songs.updateOne(
         {_id: songId},
         {
           $set: {
-            title: req.body.data.title,
-            album: req.body.data.album,
-            genre: req.body.data.genre,
-            duration: req.body.data.duration,
+            title,
+            album,
+            genre,
+            duration,
           },
         },
     );
-
+    console.log(updatedSong);
     if (updatedSong) {
       res
           .status(200)
@@ -255,14 +256,6 @@ const editSong = async (req, res) => {
   }
 };
 
-// const deleteSong = async (req, res) => {
-//   const userId = req.tockens.userId;
-//   const songId = req.body.songId;
-//   const user = await Users.findById(userId);
-//   const band = await Bands.findByIf(user.bandId);
-//   const songs = await Songs.findById(songId);
-//   // res.json(songs);
-// };
 
 module.exports = {
   getBandHome,
@@ -274,5 +267,4 @@ module.exports = {
   getSongs,
   getSingleSong,
   editSong,
-  // deleteSong,
 };
