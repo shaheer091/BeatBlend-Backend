@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Users = require('../models/userSchema');
 const Bands = require('../models/bandSchema');
-// const Profile = require('../models/profileSchema');
+const Profile = require('../models/profileSchema');
 const Songs = require('../models/songSchema');
 // const Playlist = require('../models/playlistSchema');
 
@@ -127,9 +127,12 @@ const removeFromBand = async (req, res) => {
 
 const searchArtist = async (req, res) => {
   const userId = req.tockens.userId;
+  const user = await Users.findById(userId);
+  const band = await Bands.findById(user.bandId);
   const searchText = req.params.searchText;
   try {
     const artists = await Users.find({
+      _id: {$ne: band.bandMembers},
       _id: {$ne: userId},
       username: {$regex: searchText, $options: 'i'},
       deleteStatus: false,
@@ -162,6 +165,11 @@ const addToBand = async (req, res) => {
       return res.status(403).json({
         message: 'You cannot perform this task. You are not the admin.',
       });
+    }
+    if (band.bandMembers.includes(artistId)) {
+      return res
+          .status(409)
+          .json({message: 'Artist is already a band member'});
     }
     if (
       band.requestedMembers.some((memberId) => memberId.toString() === artistId)
@@ -226,8 +234,7 @@ const getSingleSong = async (req, res) => {
 
 const editSong = async (req, res) => {
   try {
-    const {title, album, genre, duration}=req.body;
-    console.log(req.body.data);
+    const {title, album, genre, duration} = req.body;
     const songId = req.params.id;
     const updatedSong = await Songs.updateOne(
         {_id: songId},
@@ -240,15 +247,12 @@ const editSong = async (req, res) => {
           },
         },
     );
-    console.log(updatedSong);
     if (updatedSong) {
-      res
-          .status(200)
-          .json({
-            message: 'Song updated successfully',
-            discription: 'The song has been updated.',
-            success: true,
-          });
+      res.status(200).json({
+        message: 'Song updated successfully',
+        discription: 'The song has been updated.',
+        success: true,
+      });
     }
   } catch (error) {
     console.error('Error editing song:', error);
@@ -256,6 +260,55 @@ const editSong = async (req, res) => {
   }
 };
 
+const getBandProfile = async (req, res) => {
+  try {
+    const userId = req.tockens.userId;
+    const band = await Bands.find({
+      $or: [{bandAdmin: userId}, {bandMembers: userId}],
+    });
+    res.json(band);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({message: 'Internal server error'});
+  }
+};
+
+const addProfile = async (req, res) => {
+  try {
+    const userId = req.tockens.userId;
+    const {bandName, bandBio, bandLocation} = req.body;
+    // if (!req.file || !req.file.location) {
+    //   return res.status(400).json({message: 'Band image file is missing'});
+    // }
+    const fileLoc = req?.file?.location;
+    const band = await Bands.findOne({bandAdmin: userId});
+    if (!band) {
+      return res
+          .status(404)
+          .json({
+            message: 'Band not found or You are not the admin of this Band.',
+          });
+    }
+    await Bands.updateOne(
+        {_id: band._id},
+        {
+          $set: {
+            bandImage: fileLoc,
+            bandName,
+            bandBio,
+            bandLocation,
+          },
+        },
+        {upsert: true},
+    );
+    return res
+        .status(200)
+        .json({message: 'Band profile updated successfully'});
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({message: 'Internal server error'});
+  }
+};
 
 module.exports = {
   getBandHome,
@@ -267,4 +320,6 @@ module.exports = {
   getSongs,
   getSingleSong,
   editSong,
+  addProfile,
+  getBandProfile,
 };

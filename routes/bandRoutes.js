@@ -10,8 +10,10 @@ router.get('/getBandMembers', userId, band.getBandMembers);
 router.get('/search/:searchText', userId, band.searchArtist);
 router.get('/songs', userId, band.getSongs);
 router.get('/getSong/:id', userId, band.getSingleSong);
+router.get('/getProfile', userId, band.getBandProfile);
 
 router.post('/addSong', userId, upload.single('songFile'), band.addSong);
+router.post('/addProfile', userId, upload.single('bandImage'), band.addProfile);
 
 router.patch('/removeFromBand', userId, band.removeFromBand);
 router.patch('/addToBand', userId, band.addToBand);

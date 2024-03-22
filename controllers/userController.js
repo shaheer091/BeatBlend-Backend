@@ -440,10 +440,8 @@ const removeFromPlaylist = async (req, res) => {
 };
 
 const deletePlaylist = async (req, res) => {
-  console.log(req.params);
   try {
     const playlistId = new mongoose.Types.ObjectId(req.params.id);
-    console.log(playlistId);
 
     const result = await Playlist.deleteOne({_id: playlistId});
     if (result.deletedCount === 1) {
@@ -513,7 +511,6 @@ const addComment = async (req, res) => {
 const getComment = async (req, res) => {
   try {
     const songId = new mongoose.Types.ObjectId(req.params.songId);
-    console.log(songId);
     const comments = await Comments.aggregate([
       {
         $match: {songId},
@@ -546,7 +543,6 @@ const getComment = async (req, res) => {
       },
     ]);
     if (comments.length > 0) {
-      console.log(comments);
       res.json(comments);
     } else {
       res.json({message: 'No comments yet'});

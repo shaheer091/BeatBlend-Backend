@@ -15,7 +15,6 @@ const userMessages = async (req, res) => {
     const messages = await Chats.find({
       $or: [{sender: userId}, {reciever: userId}],
     });
-    console.log(messages);
     res.json(messages);
   } catch (error) {
     console.error('Error fetching messages:', error);
