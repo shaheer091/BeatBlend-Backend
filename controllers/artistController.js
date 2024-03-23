@@ -217,7 +217,6 @@ const getArtist = async (req, res) => {
     });
 
     if (existingBand) {
-      console.log(existingBand);
       return res.status(400).json({message: 'User already belongs to a band'});
     }
 

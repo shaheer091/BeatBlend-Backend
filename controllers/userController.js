@@ -425,14 +425,30 @@ const getSinglePlaylist = async (req, res) => {
 };
 
 const removeFromPlaylist = async (req, res) => {
-  const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-  const songId = new mongoose.Types.ObjectId(req.params.id);
-
   try {
-    await Playlist.updateOne({userId: userId}, {$pull: {songId: songId}});
-    res
-        .status(200)
-        .json({message: 'Song removed from playlist successfully'});
+    const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+    const songId = new mongoose.Types.ObjectId(req.body.songId);
+    const playlistId = new mongoose.Types.ObjectId(req.body.playlistId);
+    const playlist = await Playlist.findById(playlistId);
+    if (!playlist) {
+      return res.status(404).json({error: 'Playlist not found'});
+    }
+    if (userId != playlist.userId) {
+      return res.json({error: 'Unauthorized Access!'});
+    }
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlistId,
+        {$pull: {songId: songId}},
+        {new: true},
+    );
+    if (updatedPlaylist) {
+      res.json({message: 'Song removed from playlist'});
+    } else {
+      console.warn(
+          `Song with ID ${songId} not found in playlist ${playlistId}`,
+      );
+      res.status(400).json({error: 'Song not found in playlist'});
+    }
   } catch (error) {
     console.error('Error removing song from playlist:', error);
     res.status(500).json({error: 'Internal server error'});
@@ -553,20 +569,24 @@ const getComment = async (req, res) => {
 };
 
 const getPremium = async (req, res) => {
-  const amount = req.body.price;
-  razorpay.orders
-      .create({
-        amount: amount * 100,
-        currency: 'INR',
-        receipt: 'receipt_' + Math.random().toString(36).substring(2, 15),
-      })
-      .then((order) => {
-        res.json(order);
-      })
-      .catch((error) => {
-        console.error(error);
-        res.status(500).json({error: 'Failed to create order'});
-      });
+  try {
+    const amount = req.body.price;
+    razorpay.orders
+        .create({
+          amount: amount * 100,
+          currency: 'INR',
+          receipt: 'receipt_' + Math.random().toString(36).substring(2, 15),
+        })
+        .then((order) => {
+          res.json(order);
+        })
+        .catch((error) => {
+          console.error(error);
+          res.status(500).json({error: 'Failed to create order'});
+        });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const successPayment = async (req, res) => {

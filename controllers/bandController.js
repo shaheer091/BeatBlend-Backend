@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Users = require('../models/userSchema');
 const Bands = require('../models/bandSchema');
-const Profile = require('../models/profileSchema');
+// const Profile = require('../models/profileSchema');
 const Songs = require('../models/songSchema');
 // const Playlist = require('../models/playlistSchema');
 
