@@ -35,6 +35,12 @@ router.post('/premium', getUserId, user.getPremium);
 router.post('/successPayment', getUserId, user.successPayment);
 
 router.patch('/removeFromPlaylist', getUserId, user.removeFromPlaylist);
+router.patch(
+    '/editPlaylist/:id',
+    getUserId,
+    upload.single('playlistImage'),
+    user.editPlaylist,
+);
 
 router.delete('/deletePlaylist/:id', getUserId, user.deletePlaylist);
 

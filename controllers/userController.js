@@ -412,6 +412,7 @@ const getSinglePlaylist = async (req, res) => {
           _id: '$_id',
           playlistName: {$first: '$playlistName'},
           songs: {$push: '$songs'},
+          imageUrl: {$first: '$imageUrl'},
         },
       },
     ]);
@@ -635,6 +636,23 @@ const getPlaylistData = async (req, res) => {
   }
 };
 
+const editPlaylist = async (req, res) => {
+  try {
+    // const userId = req.tockens.userId;
+    const playlistId = req.params.id;
+    const {playlistName, songIds} = req.body;
+    const file = req?.file?.location;
+    await Playlist.updateOne(
+        {_id: playlistId},
+        {$set: {playlistName, songId: songIds, imageUrl: file}},
+    );
+    res.json({message: 'Playlist updated successfully'});
+  } catch (error) {
+    console.error('Error editing playlist:', error);
+    res.status(500).json({error: 'Internal server error'});
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -659,4 +677,5 @@ module.exports = {
   getPremium,
   successPayment,
   getPlaylistData,
+  editPlaylist,
 };
