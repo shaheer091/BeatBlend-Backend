@@ -3,6 +3,7 @@ const Profile = require('../models/profileSchema');
 const PendingUser = require('../models/pendingUserSchema');
 const Songs = require('../models/songSchema');
 const Playlist = require('../models/playlistSchema');
+const Chats = require('../models/chatSchema');
 const mongoose = require('mongoose');
 const sendOtp = require('../utility/sendOtp');
 const verifyOtpFn = require('../utility/verifyOtp');
@@ -653,6 +654,29 @@ const editPlaylist = async (req, res) => {
   }
 };
 
+const getPreviousMsg = async (req, res) => {
+  const userId = new mongoose.Types.ObjectId(req.tockens.userId);
+  // const receiverId = new mongoose.Types.ObjectId(req.params.id);
+
+  try {
+    const chats = await Chats.aggregate([
+      {
+        $match: {
+          $or: [
+            {sender: userId},
+            {receiver: userId},
+          ],
+        },
+      },
+    ]);
+    res.json(chats);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({error: 'Internal Server Error'});
+  }
+};
+
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -678,4 +702,5 @@ module.exports = {
   successPayment,
   getPlaylistData,
   editPlaylist,
+  getPreviousMsg,
 };

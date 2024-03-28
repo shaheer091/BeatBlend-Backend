@@ -15,6 +15,7 @@ router.get('/getPlaylist', getUserId, user.getPlaylist);
 router.get('/singlePlaylist/:id', getUserId, user.getSinglePlaylist);
 router.get('/comments/:songId', getUserId, user.getComment);
 router.get('/getPlaylistData/:id', getUserId, user.getPlaylistData);
+router.get('/chats/:id', getUserId, user.getPreviousMsg);
 
 router.put('/profile', getUserId, upload.single('file'), user.updateProfile);
 
