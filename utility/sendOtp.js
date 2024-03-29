@@ -10,7 +10,6 @@ const sendOtp = async (phoneNumber) => {
         .services(serviceSid)
         .verifications.create({to: `+91${phoneNumber}`, channel: 'sms'});
   } catch (error) {
-    console.error('Error sending OTP:', error);
     throw error;
   }
 };

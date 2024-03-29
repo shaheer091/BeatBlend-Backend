@@ -119,8 +119,9 @@ const removeFromBand = async (req, res) => {
       message: 'Remover ID removed from band members successfully.',
     });
   } catch (error) {
-    console.error('Error removing remover ID from band members:', error);
-    return res.status(500).json({message: 'Internal server error.'});
+    return res
+        .status(500)
+        .json({message: err.message || 'Internal server error.'});
   }
 };
 
@@ -179,7 +180,6 @@ const addToBand = async (req, res) => {
     await band.save();
     res.status(200).json({message: 'Artist successfully requested'});
   } catch (err) {
-    console.error(err);
     res.status(500).json({message: 'Internal server error'});
   }
 };
@@ -208,7 +208,6 @@ const getSongs = async (req, res) => {
     const songs = await Songs.find({userId: band._id});
     res.json(songs);
   } catch (error) {
-    console.error('Error fetching songs:', error);
     res.status(500).json({error: 'Internal Server Error'});
   }
 };
@@ -226,7 +225,6 @@ const getSingleSong = async (req, res) => {
     }
     res.status(200).json(song);
   } catch (err) {
-    console.error(err);
     res.status(500).json({message: 'Internal server error'});
   }
 };
@@ -254,7 +252,6 @@ const editSong = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Error editing song:', error);
     res.status(500).json({message: 'Internal server error'});
   }
 };
@@ -267,7 +264,6 @@ const getBandProfile = async (req, res) => {
     });
     res.json(band);
   } catch (err) {
-    console.error(err);
     res.status(500).json({message: 'Internal server error'});
   }
 };
@@ -279,11 +275,9 @@ const addProfile = async (req, res) => {
     const fileLoc = req?.file?.location;
     const band = await Bands.findOne({bandAdmin: userId});
     if (!band) {
-      return res
-          .status(404)
-          .json({
-            message: 'Band not found or You are not the admin of this Band.',
-          });
+      return res.status(404).json({
+        message: 'Band not found or You are not the admin of this Band.',
+      });
     }
     await Bands.updateOne(
         {_id: band._id},
@@ -301,7 +295,6 @@ const addProfile = async (req, res) => {
         .status(200)
         .json({message: 'Band profile updated successfully'});
   } catch (err) {
-    console.error(err);
     return res.status(500).json({message: 'Internal server error'});
   }
 };

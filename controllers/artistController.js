@@ -82,8 +82,7 @@ const deleteSong = async (req, res) => {
       res.json({message: 'Song undeleted successfully'});
     }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({error: 'Internal Server Error'});
+    res.status(500).json({error: err.message || 'Internal Server Error'});
   }
 };
 
@@ -140,12 +139,10 @@ const updateProfile = async (req, res) => {
           .json({message: 'Profile updated successfully', success: true});
     }
   } catch (err) {
-    res
-        .status(500)
-        .json({
-          message: err.message || 'Error Updating Profile',
-          success: false,
-        });
+    res.status(500).json({
+      message: err.message || 'Error Updating Profile',
+      success: false,
+    });
   }
 };
 
@@ -228,8 +225,9 @@ const getArtist = async (req, res) => {
       return res.json({artists: []});
     }
   } catch (error) {
-    console.error('Error while fetching artists:', error);
-    return res.status(500).json({error: 'Internal server error'});
+    return res
+        .status(500)
+        .json({error: error.message || 'Internal server error'});
   }
 };
 
@@ -255,8 +253,7 @@ const createBand = async (req, res) => {
       message: 'Requests sent to the artists. Wait for their confirmation',
     });
   } catch (err) {
-    console.error('Error creating band:', err);
-    res.status(500).json({error: 'Internal server error'});
+    res.status(500).json({error: err.message || 'Internal server error'});
   }
 };
 
@@ -280,8 +277,7 @@ const acceptBandInvitation = async (req, res) => {
       res.status(404).json({message: 'Band not found.'});
     }
   } catch (err) {
-    console.error('Error accepting band invitation:', err);
-    res.status(500).json({error: 'Internal server error'});
+    res.status(500).json({error: err.message || 'Internal server error'});
   }
 };
 

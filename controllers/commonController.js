@@ -79,7 +79,6 @@ const otpVerify = async (req, res) => {
       role: newUser.role,
     });
   } catch (error) {
-    console.error('Error saving user:', error);
     return res.status(500).json({error: 'Internal Server error'});
   }
 };
@@ -215,7 +214,6 @@ const getFollowingList = async (req, res) => {
     ]);
     return res.status(200).json(followingUsers);
   } catch (error) {
-    console.error('Error getting following list:', error);
     return res.status(500).json({message: 'Internal server error'});
   }
 };
@@ -242,7 +240,6 @@ const getFollowersList = async (req, res) => {
     ]);
     return res.status(200).json(followersList);
   } catch (error) {
-    console.error('Error getting followers list:', error);
     return res.status(500).json({message: 'Internal server error'});
   }
 };
