@@ -7,8 +7,9 @@ const decodeUserId = (req, res, next) => {
     req.tockens = decodedToken;
     next();
   } catch (err) {
-    console.log('getUserID middleware', err);
-    return res.status(500).json({message: 'Internal Server Error'});
+    return res
+        .status(500)
+        .json({message: err.messae || 'Internal Server Error'});
   }
 };
 

@@ -11,7 +11,7 @@ async function verityOtp(phone, otp) {
         .verificationChecks.create({to: `+91${phone}`, code: `${otp}`});
     return verificationCheck.status;
   } catch (error) {
-    console.log('error in verify otp', error);
+    res.json({message: error.message || 'Unexpected Error'});
     throw error;
   }
 }

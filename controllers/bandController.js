@@ -55,9 +55,8 @@ const addSong = async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
     res.json({
-      message: 'Error adding Song',
+      message: err.message || 'Error adding Song',
       success: false,
       description:
         'There was an error uploading your song. Please try again later.',
@@ -145,7 +144,7 @@ const searchArtist = async (req, res) => {
       return res.json({artists: []});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -277,9 +276,6 @@ const addProfile = async (req, res) => {
   try {
     const userId = req.tockens.userId;
     const {bandName, bandBio, bandLocation} = req.body;
-    // if (!req.file || !req.file.location) {
-    //   return res.status(400).json({message: 'Band image file is missing'});
-    // }
     const fileLoc = req?.file?.location;
     const band = await Bands.findOne({bandAdmin: userId});
     if (!band) {

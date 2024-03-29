@@ -35,9 +35,8 @@ const addSong = async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
     res.json({
-      message: 'Error adding Song',
+      message: err.message || 'Error adding Song',
       success: false,
       description:
         'There was an error uploading your song. Please try again later.',
@@ -60,7 +59,7 @@ const getSong = async (req, res) => {
       res.json({message: 'No Songs Found', success: false});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -141,8 +140,12 @@ const updateProfile = async (req, res) => {
           .json({message: 'Profile updated successfully', success: true});
     }
   } catch (err) {
-    res.status(500).json({message: 'Error Updating Profile', success: false});
-    console.log(err);
+    res
+        .status(500)
+        .json({
+          message: err.message || 'Error Updating Profile',
+          success: false,
+        });
   }
 };
 
@@ -152,7 +155,7 @@ const getSongDetails = async (req, res) => {
     const song = await Songs.findOne({_id: songId});
     res.json(song);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -174,7 +177,7 @@ const editSongDetails = async (req, res) => {
     );
     res.json({message: 'Song Updated Successfully'});
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -194,7 +197,7 @@ const getHome = async (req, res) => {
     ]);
     res.json(artist);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in fetching data'});
   }
 };
 
@@ -210,14 +213,13 @@ const getArtist = async (req, res) => {
       isVerified: true,
     });
     const existingBand = await Band.findOne({
-      $or: [
-        {bandAdmin: userId},
-        {bandMembers: {$in: [userId]}},
-      ],
+      $or: [{bandAdmin: userId}, {bandMembers: {$in: [userId]}}],
     });
 
     if (existingBand) {
-      return res.status(400).json({message: 'User already belongs to a band'});
+      return res
+          .status(400)
+          .json({message: 'User already belongs to a band'});
     }
 
     if (artists && artists.length > 0) {

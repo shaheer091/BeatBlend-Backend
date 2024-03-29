@@ -55,8 +55,7 @@ const changeDeleteStatus = async (req, res) => {
       res.json({message: 'user undeleted successfully'});
     }
   } catch (err) {
-    console.log(err);
-    res.json({message: 'error deleting user'});
+    res.json({message: err.message || 'Error in deleting the user.'});
   }
 };
 
@@ -72,7 +71,7 @@ const approveUser = async (req, res) => {
     res.status(200).json({message: 'User approved successfully'});
     await PendingUser.deleteOne({userId});
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error while approving the User'});
   }
 };
 
@@ -85,8 +84,7 @@ const declineUser = async (req, res) => {
     await PendingUser.deleteOne({userId});
     res.json({message: 'User Decline and mail send successfully'});
   } catch (err) {
-    console.log(err);
-    res.json({message: 'Error while declining User'});
+    res.json({message: err.message || 'Error while declining User'});
   }
 };
 
@@ -105,8 +103,7 @@ const changeBlockStatus = async (req, res) => {
       res.json({message: 'user unblocked successfully'});
     }
   } catch (err) {
-    console.log(err);
-    res.json({message: 'error blocking user'});
+    res.json({message: err.message || 'error blocking user'});
   }
 };
 
@@ -118,7 +115,7 @@ const getHome = async (req, res) => {
       res.json({users, pendingUsers});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error while fatching Home page'});
   }
 };
 

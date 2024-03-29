@@ -32,7 +32,6 @@ const signup = async (req, res) => {
       await emailService.sendOtp(email, otp);
       res.status(200).json({message: 'OTP is successfully sent', otp});
     } catch (error) {
-      console.log(`error sending otp to email ${error}`);
       res.status(500).json({error: 'Internal Server error'});
     }
   }
@@ -193,7 +192,7 @@ const getUserProfile = async (req, res) => {
       res.json(user);
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error Occured'});
   }
 };
 
@@ -201,9 +200,19 @@ const getFollowingList = async (req, res) => {
   try {
     const userId = req.tockens.userId;
     const currentUser = await Users.findById(userId);
-    const followingUsers = await Users.find({
-      _id: {$in: currentUser.following},
-    });
+    const followingUsers = await Users.aggregate([
+      {
+        $match: {_id: {$in: currentUser.following}},
+      },
+      {
+        $lookup: {
+          from: 'userprofiles',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'userProfile',
+        },
+      },
+    ]);
     return res.status(200).json(followingUsers);
   } catch (error) {
     console.error('Error getting following list:', error);
@@ -218,9 +227,19 @@ const getFollowersList = async (req, res) => {
     if (!currentUser) {
       return res.status(404).json({message: 'User not found'});
     }
-    const followersList = await Users.find({
-      _id: {$in: currentUser.followers},
-    });
+    const followersList = await Users.aggregate([
+      {
+        $match: {_id: {$in: currentUser.followers}},
+      },
+      {
+        $lookup: {
+          from: 'userprofiles',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'userProfile',
+        },
+      },
+    ]);
     return res.status(200).json(followersList);
   } catch (error) {
     console.error('Error getting followers list:', error);
@@ -288,7 +307,7 @@ const getNotifications = async (req, res) => {
       return res.json({message: 'No new Notifications'});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 

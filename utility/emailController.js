@@ -20,7 +20,7 @@ const sendOtp = async function(email, otp) {
   try {
     await transporter.sendMail(mailOption);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in sending OTP'});
   }
 };
 
@@ -35,7 +35,7 @@ const requestApproval = async function(email) {
   try {
     await transporter.sendMail(mailOption);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in sending OTP'});
   }
 };
 
@@ -50,7 +50,7 @@ const approveUser = async function(email) {
     };
     await transporter.sendMail(mailOption);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in sending OTP'});
   }
 };
 
@@ -65,7 +65,7 @@ const declineUser = async function(email) {
     };
     await transporter.sendMail(mailOption);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in sending OTP'});
   }
 };
 
@@ -79,7 +79,7 @@ const requestBandJoin = async function(email) {
     };
     await transporter.sendMail(mailOption);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in sending OTP'});
   }
 };
 
@@ -93,7 +93,7 @@ const acceptedBandInvitaion = async function(email) {
     };
     await transporter.sendMail(mailOption);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in sending OTP'});
   }
 };
 
@@ -107,7 +107,7 @@ const declinedBandInvitaion = async function(email) {
     };
     await transporter.sendMail(mailOption);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in sending OTP'});
   }
 };
 

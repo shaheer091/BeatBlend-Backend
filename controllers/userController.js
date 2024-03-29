@@ -27,7 +27,7 @@ const getProfile = async (req, res) => {
     ]);
     res.json({userProfile});
   } catch (error) {
-    console.log(error);
+    res.json({message: error.message || 'Server Error'});
   }
 };
 
@@ -58,8 +58,7 @@ const updateProfile = async (req, res) => {
     );
     res.json({message: 'Profile updated successfully'});
   } catch (error) {
-    console.log(error);
-    res.json({message: 'Profile updation failed'});
+    res.json({message: error.message || 'Profile updation failed'});
   }
 };
 
@@ -85,7 +84,7 @@ const verifyOtp = async (req, res) => {
       res.json({message: 'OTP is verified succesfully'});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -121,7 +120,6 @@ const verifyUser = async (req, res) => {
 
     await emailController.requestApproval(user.email);
   } catch (err) {
-    console.log(err);
     res.status(err.statusCode || 500).json({
       success: false,
       message: err.message || 'An errro occured! please try later',
@@ -169,7 +167,7 @@ const search = async (req, res) => {
       res.status(404).json({message: 'No User Found', users: []});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -202,7 +200,7 @@ const followAndUnfollowUser = async (req, res) => {
       res.json({message: 'user followed successfully'});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -261,8 +259,7 @@ const getSettings = async (req, res) => {
       res.json({user, profile});
     }
   } catch (err) {
-    console.log(err);
-    res.status(500).json({error: 'Internal server error'});
+    res.status(500).json({error: err.message || 'Internal server error'});
   }
 };
 
@@ -318,7 +315,9 @@ const getFavSongs = async (req, res) => {
     return res.json({favSongs});
   } catch (err) {
     console.error(err);
-    return res.status(500).json({error: 'Internal server error'});
+    return res
+        .status(500)
+        .json({error: err.message || 'Internal server error'});
   }
 };
 
@@ -365,7 +364,7 @@ const createPlaylist = async (req, res) => {
       res.status(500).json({error: 'Internal server error'});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error!'});
   }
 };
 
@@ -379,7 +378,7 @@ const getPlaylist = async (req, res) => {
       res.json(playlist);
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error!'});
   }
 };
 
@@ -422,7 +421,7 @@ const getSinglePlaylist = async (req, res) => {
       res.json({playlist, userId});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server error'});
   }
 };
 
@@ -522,7 +521,7 @@ const addComment = async (req, res) => {
       res.json({message: 'Error addning Comment'});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -566,7 +565,9 @@ const getComment = async (req, res) => {
       res.json({message: 'No comments yet'});
     }
   } catch (err) {
-    console.log(err);
+    res.json({
+      message: err.message || 'Error occurred while fetching comments.',
+    });
   }
 };
 
@@ -587,7 +588,7 @@ const getPremium = async (req, res) => {
           res.status(500).json({error: 'Failed to create order'});
         });
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Internal server error'});
   }
 };
 
@@ -610,7 +611,7 @@ const successPayment = async (req, res) => {
     });
     newPayment.save();
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -633,7 +634,7 @@ const getPlaylistData = async (req, res) => {
       res.json(playlist);
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in getting data.'});
   }
 };
 
@@ -662,10 +663,7 @@ const getPreviousMsg = async (req, res) => {
     const chats = await Chats.aggregate([
       {
         $match: {
-          $or: [
-            {sender: userId},
-            {receiver: userId},
-          ],
+          $or: [{sender: userId}, {receiver: userId}],
         },
       },
     ]);
@@ -675,7 +673,6 @@ const getPreviousMsg = async (req, res) => {
     res.status(500).json({error: 'Internal Server Error'});
   }
 };
-
 
 module.exports = {
   getProfile,
