@@ -35,8 +35,9 @@ const updateProfile = async (req, res) => {
   try {
     const {bio, phoneNumber, date, gender, username, email} = req.body;
     const fileLoc = req.file?.location;
+    const userId = req.tockens.userId;
     await Profile.updateOne(
-        {userId: req.tockens.userId},
+        {userId},
         {
           $set: {
             imageUrl: fileLoc,
@@ -48,7 +49,7 @@ const updateProfile = async (req, res) => {
         },
     );
     await Users.updateOne(
-        {_id: req.tockens.userId},
+        {_id: userId},
         {
           $set: {
             username,
@@ -133,12 +134,6 @@ const search = async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const searchText = req.params.text;
     if (searchText !== '') {
-      // const users = await Users.find({
-      //   _id: {$ne: userId},
-      //   username: {$regex: searchText, $options: 'i'},
-      //   role: {$in: ['user', 'artist']},
-      //   deleteStatus: false,
-      // });
       const users = await Users.aggregate([
         {
           $match: {
@@ -425,10 +420,11 @@ const removeFromPlaylist = async (req, res) => {
     const songId = new mongoose.Types.ObjectId(req.body.songId);
     const playlistId = new mongoose.Types.ObjectId(req.body.playlistId);
     const playlist = await Playlist.findById(playlistId);
+    console.log(userId, playlist.userId);
     if (!playlist) {
       return res.status(404).json({error: 'Playlist not found'});
     }
-    if (userId != playlist.userId) {
+    if (userId.toString() != playlist.userId.toString()) {
       return res.json({error: 'Unauthorized Access!'});
     }
     const updatedPlaylist = await Playlist.findByIdAndUpdate(
