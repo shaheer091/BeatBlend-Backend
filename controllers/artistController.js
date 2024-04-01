@@ -47,7 +47,9 @@ const addSong = async (req, res) => {
 const getSong = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-    const songs = await Songs.aggregate([{$match: {userId: userId}}]);
+    const songs = await Songs.aggregate([
+      {$match: {userId: userId, isBlocked: false, deleteStatus: false}},
+    ]);
     let username;
     if (songs.length > 0) {
       const user = await User.findOne(userId);
@@ -149,7 +151,11 @@ const updateProfile = async (req, res) => {
 const getSongDetails = async (req, res) => {
   try {
     const songId = new mongoose.Types.ObjectId(req.params.id);
-    const song = await Songs.findOne({_id: songId});
+    const song = await Songs.findOne({
+      _id: songId,
+      isBlocked: false,
+      deleteStatus: false,
+    });
     res.json(song);
   } catch (err) {
     res.json({message: err.message || 'Server Error'});
@@ -161,7 +167,7 @@ const editSongDetails = async (req, res) => {
     const songId = new mongoose.Types.ObjectId(req.params.id);
     const {title, artist, album, genre, duration} = req.body;
     await Songs.updateOne(
-        {_id: songId},
+        {_id: songId, isBlocked: false, deleteStatus: false},
         {
           $set: {
             title,

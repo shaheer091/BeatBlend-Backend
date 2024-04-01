@@ -169,6 +169,12 @@ const getUserProfile = async (req, res) => {
         },
       },
       {
+        $match: {
+          'songs.deleteStatus': false,
+          'songs.isBlocked': false,
+        },
+      },
+      {
         $lookup: {
           from: 'bands',
           localField: '_id',
@@ -266,6 +272,7 @@ const getNotifications = async (req, res) => {
         $match: {
           userId: {$in: following},
           // releaseDate: {$gte: {$toMillis: twentyFourHoursAgo}},
+          isBlocked: false,
           deleteStatus: false,
         },
       },

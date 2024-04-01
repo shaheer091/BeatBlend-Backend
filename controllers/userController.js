@@ -211,6 +211,7 @@ const getSong = async (req, res) => {
         {
           $match: {
             userId: {$in: following},
+            isBlocked: false,
             deleteStatus: false,
           },
         },
@@ -301,6 +302,7 @@ const getFavSongs = async (req, res) => {
     }
     const favSongs = await Songs.find({
       _id: {$in: favSongIds},
+      isBlocked: false,
       deleteStatus: false,
     }).populate('userId', 'username');
 
@@ -317,6 +319,7 @@ const searchSong = async (req, res) => {
     const searchText = req.params.searchText;
     const songs = await Songs.find({
       title: {$regex: searchText, $options: 'i'},
+      isBlocked: false,
       deleteStatus: false,
     }).populate('userId', 'username');
     if (searchText != '') {
@@ -394,6 +397,12 @@ const getSinglePlaylist = async (req, res) => {
           localField: 'songs.userId',
           foreignField: '_id',
           as: 'songs.artists',
+        },
+      },
+      {
+        $match: {
+          'songs.deleteStatus': false,
+          'songs.isBlocked': false,
         },
       },
       {
@@ -613,6 +622,12 @@ const getPlaylistData = async (req, res) => {
           localField: 'songId',
           foreignField: '_id',
           as: 'songs',
+        },
+      },
+      {
+        $match: {
+          'songs.deleteStatus': false,
+          'songs.isBlocked': false,
         },
       },
     ]);

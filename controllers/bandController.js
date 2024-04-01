@@ -205,7 +205,11 @@ const getSongs = async (req, res) => {
       return res.status(404).json({error: 'Band not found'});
     }
 
-    const songs = await Songs.find({userId: band._id});
+    const songs = await Songs.find({
+      userId: band._id,
+      isBlocked: false,
+      deleteStatus: false,
+    });
     res.json(songs);
   } catch (error) {
     res.status(500).json({error: 'Internal Server Error'});
