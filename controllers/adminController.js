@@ -3,6 +3,7 @@ const Users = require('../models/userSchema');
 const PendingUser = require('../models/pendingUserSchema');
 // const mongoose = require('mongoose');
 const emailController = require('../utility/emailController');
+const Songs = require('../models/songSchema');
 
 const getAllUsers = async (req, res) => {
   const user = await Users.find({role: 'user'});
@@ -119,6 +120,33 @@ const getHome = async (req, res) => {
   }
 };
 
+const changeSongBlockStatus = async (req, res) => {
+  try {
+    const songId = req.body.songId;
+    const song = await Songs.findById(songId);
+    if (song) {
+      const newStatus = !song.isBlocked;
+
+      await Songs.updateOne(
+          {_id: songId},
+          {$set: {isBlocked: newStatus}},
+      );
+      if (newStatus == true) {
+        return res
+            .status(200)
+            .json({message: 'Song blocked successfully.'});
+      } else {
+        return res.json({message: 'Song unblockeed'});
+      }
+    } else {
+      return res.status(404).json({message: 'Song not found.'});
+    }
+  } catch (error) {
+    console.error('Error changing song block status:', error);
+    return res.status(500).json({message: 'Internal server error.'});
+  }
+};
+
 module.exports = {
   getAllUsers,
   getAllArtist,
@@ -129,4 +157,5 @@ module.exports = {
   declineUser,
   changeBlockStatus,
   getHome,
+  changeSongBlockStatus,
 };
