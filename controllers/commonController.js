@@ -168,12 +168,12 @@ const getUserProfile = async (req, res) => {
           as: 'songs',
         },
       },
-      {
-        $match: {
-          'songs.deleteStatus': false,
-          'songs.isBlocked': false,
-        },
-      },
+      // {
+      //   $match: {
+      //     'songs.deleteStatus': false,
+      //     'songs.isBlocked': false,
+      //   },
+      // },
       {
         $lookup: {
           from: 'bands',

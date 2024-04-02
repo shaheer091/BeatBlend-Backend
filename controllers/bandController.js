@@ -135,7 +135,6 @@ const searchArtist = async (req, res) => {
       _id: {$ne: band.bandMembers},
       _id: {$ne: userId},
       username: {$regex: searchText, $options: 'i'},
-      deleteStatus: false,
       role: 'artist',
       isVerified: true,
     });
@@ -207,8 +206,6 @@ const getSongs = async (req, res) => {
 
     const songs = await Songs.find({
       userId: band._id,
-      isBlocked: false,
-      deleteStatus: false,
     });
     res.json(songs);
   } catch (error) {
