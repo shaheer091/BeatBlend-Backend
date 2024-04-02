@@ -211,8 +211,6 @@ const getSong = async (req, res) => {
         {
           $match: {
             userId: {$in: following},
-            isBlocked: false,
-            deleteStatus: false,
           },
         },
         {
@@ -624,12 +622,12 @@ const getPlaylistData = async (req, res) => {
           as: 'songs',
         },
       },
-      {
-        $match: {
-          'songs.deleteStatus': false,
-          'songs.isBlocked': false,
-        },
-      },
+      // {
+      //   $match: {
+      //     'songs.deleteStatus': false,
+      //     'songs.isBlocked': false,
+      //   },
+      // },
     ]);
     if (playlist) {
       res.json(playlist);
