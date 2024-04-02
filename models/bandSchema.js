@@ -13,11 +13,21 @@ const bandSchema = new mongoose.Schema({
     type: mongoose.Types.ObjectId,
     required: true,
   },
+  bandLocation: {
+    type: String,
+  },
+  bandBio: {
+    type: String,
+  },
   bandMembers: {
     type: [mongoose.Types.ObjectId],
   },
   requestedMembers: {
     type: [mongoose.Types.ObjectId],
+  },
+  dateCreated: {
+    type: Date,
+    default: Date.now,
   },
 });
 

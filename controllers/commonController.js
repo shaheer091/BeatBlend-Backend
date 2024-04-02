@@ -32,7 +32,6 @@ const signup = async (req, res) => {
       await emailService.sendOtp(email, otp);
       res.status(200).json({message: 'OTP is successfully sent', otp});
     } catch (error) {
-      console.log(`error sending otp to email ${error}`);
       res.status(500).json({error: 'Internal Server error'});
     }
   }
@@ -62,9 +61,17 @@ const otpVerify = async (req, res) => {
       isBlocked: false,
     });
     await newUser.save();
-    const token = jwt.sign({userId: newUser._id}, process.env.SECRET_KEY, {
-      expiresIn: '1d',
-    });
+    const token = jwt.sign(
+        {
+          userId: newUser._id,
+          username: newUser.username,
+          role: newUser.role,
+        },
+        process.env.SECRET_KEY,
+        {
+          expiresIn: '1d',
+        },
+    );
     return res.status(200).json({
       success: true,
       message: 'OTP verified successfully',
@@ -72,7 +79,6 @@ const otpVerify = async (req, res) => {
       role: newUser.role,
     });
   } catch (error) {
-    console.error('Error saving user:', error);
     return res.status(500).json({error: 'Internal Server error'});
   }
 };
@@ -106,11 +112,15 @@ const login = async (req, res) => {
         }
         const role = existingUser.role;
         const token = jwt.sign(
-            {userId: existingUser._id},
+            {
+              userId: existingUser._id,
+              username: existingUser.username,
+              role: existingUser.role,
+            },
             process.env.SECRET_KEY,
             {expiresIn: '1d'},
         );
-        if (existingUser.bandId) {
+        if (existingUser.bandId && existingUser.bandId != '') {
           return res.json({
             success: true,
             message: 'Login successful',
@@ -124,8 +134,9 @@ const login = async (req, res) => {
             message: 'Login successful',
             token,
             role: role,
+            isInBand: 'false',
           });
-        };
+        }
       } else {
         return res.json({message: 'This account has been deleted'});
       }
@@ -158,6 +169,12 @@ const getUserProfile = async (req, res) => {
         },
       },
       {
+        $match: {
+          'songs.deleteStatus': false,
+          'songs.isBlocked': false,
+        },
+      },
+      {
         $lookup: {
           from: 'bands',
           localField: '_id',
@@ -180,7 +197,7 @@ const getUserProfile = async (req, res) => {
       res.json(user);
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error Occured'});
   }
 };
 
@@ -188,12 +205,21 @@ const getFollowingList = async (req, res) => {
   try {
     const userId = req.tockens.userId;
     const currentUser = await Users.findById(userId);
-    const followingUsers = await Users.find({
-      _id: {$in: currentUser.following},
-    });
+    const followingUsers = await Users.aggregate([
+      {
+        $match: {_id: {$in: currentUser.following}},
+      },
+      {
+        $lookup: {
+          from: 'userprofiles',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'userProfile',
+        },
+      },
+    ]);
     return res.status(200).json(followingUsers);
   } catch (error) {
-    console.error('Error getting following list:', error);
     return res.status(500).json({message: 'Internal server error'});
   }
 };
@@ -205,12 +231,21 @@ const getFollowersList = async (req, res) => {
     if (!currentUser) {
       return res.status(404).json({message: 'User not found'});
     }
-    const followersList = await Users.find({
-      _id: {$in: currentUser.followers},
-    });
+    const followersList = await Users.aggregate([
+      {
+        $match: {_id: {$in: currentUser.followers}},
+      },
+      {
+        $lookup: {
+          from: 'userprofiles',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'userProfile',
+        },
+      },
+    ]);
     return res.status(200).json(followersList);
   } catch (error) {
-    console.error('Error getting followers list:', error);
     return res.status(500).json({message: 'Internal server error'});
   }
 };
@@ -220,7 +255,7 @@ const getNotifications = async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
     const user = await Users.findOne({_id: userId});
     const {following} = user;
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    // const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const bandInvitation = await Band.aggregate([
       {$match: {requestedMembers: userId}},
       {
@@ -236,7 +271,8 @@ const getNotifications = async (req, res) => {
       {
         $match: {
           userId: {$in: following},
-          releaseDate: {$gte: {$toMillis: twentyFourHoursAgo}},
+          // releaseDate: {$gte: {$toMillis: twentyFourHoursAgo}},
+          isBlocked: false,
           deleteStatus: false,
         },
       },
@@ -275,11 +311,11 @@ const getNotifications = async (req, res) => {
       return res.json({message: 'No new Notifications'});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
-const getBandProfile = async (req, res) =>{
+const getBandProfile = async (req, res) => {
   const bandId = new mongoose.Types.ObjectId(req.params.id);
   const band = await Band.aggregate([
     {

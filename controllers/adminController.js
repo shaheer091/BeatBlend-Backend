@@ -3,6 +3,7 @@ const Users = require('../models/userSchema');
 const PendingUser = require('../models/pendingUserSchema');
 // const mongoose = require('mongoose');
 const emailController = require('../utility/emailController');
+const Songs = require('../models/songSchema');
 
 const getAllUsers = async (req, res) => {
   const user = await Users.find({role: 'user'});
@@ -55,8 +56,7 @@ const changeDeleteStatus = async (req, res) => {
       res.json({message: 'user undeleted successfully'});
     }
   } catch (err) {
-    console.log(err);
-    res.json({message: 'error deleting user'});
+    res.json({message: err.message || 'Error in deleting the user.'});
   }
 };
 
@@ -72,7 +72,7 @@ const approveUser = async (req, res) => {
     res.status(200).json({message: 'User approved successfully'});
     await PendingUser.deleteOne({userId});
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error while approving the User'});
   }
 };
 
@@ -85,10 +85,10 @@ const declineUser = async (req, res) => {
     await PendingUser.deleteOne({userId});
     res.json({message: 'User Decline and mail send successfully'});
   } catch (err) {
-    console.log(err);
-    res.json({message: 'Error while declining User'});
+    res.json({message: err.message || 'Error while declining User'});
   }
 };
+
 const changeBlockStatus = async (req, res) => {
   try {
     const userID = req.body.userId;
@@ -104,8 +104,46 @@ const changeBlockStatus = async (req, res) => {
       res.json({message: 'user unblocked successfully'});
     }
   } catch (err) {
-    console.log(err);
-    res.json({message: 'error blocking user'});
+    res.json({message: err.message || 'error blocking user'});
+  }
+};
+
+const getHome = async (req, res) => {
+  try {
+    const users = await Users.find();
+    const pendingUsers = await PendingUser.find();
+    if (users) {
+      res.json({users, pendingUsers});
+    }
+  } catch (err) {
+    res.json({message: err.message || 'Error while fatching Home page'});
+  }
+};
+
+const changeSongBlockStatus = async (req, res) => {
+  try {
+    const songId = req.body.songId;
+    const song = await Songs.findById(songId);
+    if (song) {
+      const newStatus = !song.isBlocked;
+
+      await Songs.updateOne(
+          {_id: songId},
+          {$set: {isBlocked: newStatus}},
+      );
+      if (newStatus == true) {
+        return res
+            .status(200)
+            .json({message: 'Song blocked successfully.'});
+      } else {
+        return res.json({message: 'Song unblockeed'});
+      }
+    } else {
+      return res.status(404).json({message: 'Song not found.'});
+    }
+  } catch (error) {
+    console.error('Error changing song block status:', error);
+    return res.status(500).json({message: 'Internal server error.'});
   }
 };
 
@@ -118,4 +156,6 @@ module.exports = {
   approveUser,
   declineUser,
   changeBlockStatus,
+  getHome,
+  changeSongBlockStatus,
 };

@@ -35,9 +35,8 @@ const addSong = async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
     res.json({
-      message: 'Error adding Song',
+      message: err.message || 'Error adding Song',
       success: false,
       description:
         'There was an error uploading your song. Please try again later.',
@@ -48,7 +47,9 @@ const addSong = async (req, res) => {
 const getSong = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.tockens.userId);
-    const songs = await Songs.aggregate([{$match: {userId: userId}}]);
+    const songs = await Songs.aggregate([
+      {$match: {userId: userId, isBlocked: false, deleteStatus: false}},
+    ]);
     let username;
     if (songs.length > 0) {
       const user = await User.findOne(userId);
@@ -60,7 +61,7 @@ const getSong = async (req, res) => {
       res.json({message: 'No Songs Found', success: false});
     }
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -83,8 +84,7 @@ const deleteSong = async (req, res) => {
       res.json({message: 'Song undeleted successfully'});
     }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({error: 'Internal Server Error'});
+    res.status(500).json({error: err.message || 'Internal Server Error'});
   }
 };
 
@@ -141,18 +141,24 @@ const updateProfile = async (req, res) => {
           .json({message: 'Profile updated successfully', success: true});
     }
   } catch (err) {
-    res.status(500).json({message: 'Error Updating Profile', success: false});
-    console.log(err);
+    res.status(500).json({
+      message: err.message || 'Error Updating Profile',
+      success: false,
+    });
   }
 };
 
 const getSongDetails = async (req, res) => {
   try {
     const songId = new mongoose.Types.ObjectId(req.params.id);
-    const song = await Songs.findOne({_id: songId});
+    const song = await Songs.findOne({
+      _id: songId,
+      isBlocked: false,
+      deleteStatus: false,
+    });
     res.json(song);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -161,7 +167,7 @@ const editSongDetails = async (req, res) => {
     const songId = new mongoose.Types.ObjectId(req.params.id);
     const {title, artist, album, genre, duration} = req.body;
     await Songs.updateOne(
-        {_id: songId},
+        {_id: songId, isBlocked: false, deleteStatus: false},
         {
           $set: {
             title,
@@ -174,7 +180,7 @@ const editSongDetails = async (req, res) => {
     );
     res.json({message: 'Song Updated Successfully'});
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Server Error'});
   }
 };
 
@@ -194,7 +200,7 @@ const getHome = async (req, res) => {
     ]);
     res.json(artist);
   } catch (err) {
-    console.log(err);
+    res.json({message: err.message || 'Error in fetching data'});
   }
 };
 
@@ -210,15 +216,13 @@ const getArtist = async (req, res) => {
       isVerified: true,
     });
     const existingBand = await Band.findOne({
-      $or: [
-        {bandAdmin: userId},
-        {bandMembers: {$in: [userId]}},
-      ],
+      $or: [{bandAdmin: userId}, {bandMembers: {$in: [userId]}}],
     });
 
     if (existingBand) {
-      console.log(existingBand);
-      return res.status(400).json({message: 'User already belongs to a band'});
+      return res
+          .status(400)
+          .json({message: 'User already belongs to a band'});
     }
 
     if (artists && artists.length > 0) {
@@ -227,8 +231,9 @@ const getArtist = async (req, res) => {
       return res.json({artists: []});
     }
   } catch (error) {
-    console.error('Error while fetching artists:', error);
-    return res.status(500).json({error: 'Internal server error'});
+    return res
+        .status(500)
+        .json({error: error.message || 'Internal server error'});
   }
 };
 
@@ -254,11 +259,9 @@ const createBand = async (req, res) => {
       message: 'Requests sent to the artists. Wait for their confirmation',
     });
   } catch (err) {
-    console.error('Error creating band:', err);
-    res.status(500).json({error: 'Internal server error'});
+    res.status(500).json({error: err.message || 'Internal server error'});
   }
 };
-
 
 const acceptBandInvitation = async (req, res) => {
   try {
@@ -280,8 +283,7 @@ const acceptBandInvitation = async (req, res) => {
       res.status(404).json({message: 'Band not found.'});
     }
   } catch (err) {
-    console.error('Error accepting band invitation:', err);
-    res.status(500).json({error: 'Internal server error'});
+    res.status(500).json({error: err.message || 'Internal server error'});
   }
 };
 
