@@ -101,12 +101,17 @@ const verifyUser = async (req, res) => {
     const userId = req.tockens.userId;
 
     const user = await Users.findOne({_id: userId});
+    const pendingUser = await PendingUser.find({userId});
+
+    if (pendingUser) {
+      throw new Error('You have already requested');
+    }
 
     if (!user) {
       throw new Error('Failed to get user details with provided id!');
     }
 
-    const pendingUser = new PendingUser({
+    const newPendingUser = new PendingUser({
       userId: user._id,
       username: user.username,
       email: user.email,
@@ -116,7 +121,7 @@ const verifyUser = async (req, res) => {
       deleteStatus: false,
     });
 
-    await pendingUser.save();
+    await newPendingUser.save();
 
     await emailController.requestApproval(user.email);
   } catch (err) {
@@ -124,7 +129,6 @@ const verifyUser = async (req, res) => {
       success: false,
       message: err.message || 'An errro occured! please try later',
       data: [],
-      err,
     });
   }
 };
@@ -300,8 +304,6 @@ const getFavSongs = async (req, res) => {
     }
     const favSongs = await Songs.find({
       _id: {$in: favSongIds},
-      isBlocked: false,
-      deleteStatus: false,
     }).populate('userId', 'username');
 
     return res.json({favSongs});
@@ -317,8 +319,6 @@ const searchSong = async (req, res) => {
     const searchText = req.params.searchText;
     const songs = await Songs.find({
       title: {$regex: searchText, $options: 'i'},
-      isBlocked: false,
-      deleteStatus: false,
     }).populate('userId', 'username');
     if (searchText != '') {
       if (!songs || songs.length == 0) {
